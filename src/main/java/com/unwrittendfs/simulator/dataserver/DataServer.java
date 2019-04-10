@@ -54,4 +54,9 @@ public class DataServer {
 		// TODO: Implement
 		return true;
 	}
+	
+	public boolean deleteChunks(List<Integer> chunk_ids) {
+		// TODO: Implement
+		return true;
+	}
 }
