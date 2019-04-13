@@ -142,7 +142,7 @@ public class DistributedFileSystem {
 			int new_chunk_id = mMetadataServer.addChunkToFile(fd, client_id, potentialLocations);
 			long bytes_written = 0;
 			for(DataLocation location : potentialLocations) {
-				long written = mDataServerMap.get(location.getDataServer()).write(new_chunk_id);
+				long written = mDataServerMap.get(location.getDataServer()).write(new_chunk_id, mClusterConfiguration.getChunkSize());
 				bytes_written += written;
 			}
 			// If all replicas could not be written successfully
@@ -173,7 +173,7 @@ public class DistributedFileSystem {
 			List<DataLocation> locations = mMetadataServer.getDataLocations(chunk);
 			for(DataLocation location : locations) {
 				// Always assume that an overwrite will succeed
-				bytesWritten += mDataServerMap.get(location.getDataServer()).write(chunk);
+				bytesWritten += mDataServerMap.get(location.getDataServer()).write(chunk, mClusterConfiguration.getChunkSize());
 			}
 		}
 		return bytesWritten;
