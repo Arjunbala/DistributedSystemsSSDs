@@ -17,25 +17,16 @@ public class DistributedFileSystem {
 
 	private static DistributedFileSystem sInstance = null;
 	private MetadataServer mMetadataServer; // Holds instance of Metadata server
-	private ClusterConfiguration mClusterConfiguration; // Holds instance of cluster configuration
-	private Map<Integer, DataServer> mDataServerMap; // List of available data-servers
+	protected ClusterConfiguration mClusterConfiguration; // Holds instance of cluster configuration
+	protected Map<Integer, DataServer> mDataServerMap; // List of available data-servers
 
-	private DistributedFileSystem(ClusterConfiguration config) {
+	protected DistributedFileSystem(ClusterConfiguration config) {
 		mClusterConfiguration = config;
 		mMetadataServer = new MetadataServer();
 		mDataServerMap = new HashMap<Integer, DataServer>();
 		Map<Integer, DataserverConfiguration> configs = config.getAllDataserverConfigurations();
 		for (int key : configs.keySet()) {
 			mDataServerMap.put(key, new DataServer(configs.get(key)));
-		}
-	}
-
-	public static DistributedFileSystem createInstance(JSONObject config) {
-		if (sInstance == null) {
-			sInstance = new DistributedFileSystem(ConfigUtils.getClusterConfig(config));
-			return sInstance;
-		} else {
-			return null; // Singleton instance has already been created
 		}
 	}
 

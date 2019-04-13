@@ -9,7 +9,8 @@ import com.unwrittendfs.simulator.dataserver.DataserverConfiguration;
 public class ClusterConfiguration {
 	
 	private long mChunkSize;
-	private long mNumReplicas;
+	private int mNumReplicas;
+	private double mRecentCreationsFraction;
 	private Map<Integer, DataserverConfiguration> mDataserverConfigs;
 	
 	public ClusterConfiguration(JSONObject config) {
@@ -20,8 +21,12 @@ public class ClusterConfiguration {
 		return mChunkSize;
 	}
 	
-	public long getNumberReplicas() {
+	public int getNumberReplicas() {
 		return mNumReplicas;
+	}
+	
+	public double getRecentCreationsFraction() {
+		return mRecentCreationsFraction;
 	}
 	
 	public DataserverConfiguration getDataserverConfiguration(int id) {

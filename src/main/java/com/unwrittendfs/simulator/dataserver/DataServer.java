@@ -158,6 +158,14 @@ public class DataServer {
 		return true;
 	}
 	
+	public long getDiskUsage() {
+		long pages = 0;
+		for(Integer chunk : mChunkToPageMapping.keySet()) {
+			pages += mChunkToPageMapping.get(chunk).size();
+		}
+		return pages * mConfig.getPageSize();
+	}
+	
 	private void increment(Map<Long, Integer> map, long page) {
 		int old_value = map.get(page);
 		map.put(page, old_value+1);
