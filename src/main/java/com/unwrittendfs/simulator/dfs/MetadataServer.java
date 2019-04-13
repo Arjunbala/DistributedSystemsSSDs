@@ -1,14 +1,13 @@
 package com.unwrittendfs.simulator.dfs;
 
+import com.unwrittendfs.simulator.Simulation;
+import com.unwrittendfs.simulator.dataserver.DataLocation;
+import com.unwrittendfs.simulator.file.FileAttribute;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.unwrittendfs.simulator.Simulation;
-import com.unwrittendfs.simulator.dataserver.DataLocation;
-import com.unwrittendfs.simulator.dataserver.DataServer;
-import com.unwrittendfs.simulator.file.FileAttribute;
 
 public class MetadataServer {
 
@@ -16,7 +15,7 @@ public class MetadataServer {
 	private Map<Integer, List<Integer>> mFdToChunkMapping; // Map FD to list of chunk IDs
 	private Map<Integer, List<DataLocation>> mChunkIdToDataServerMapping; // Map Chunk ID to list of dataservers
 	private Map<Integer, FileAttribute> mFileAttributeMapping; // File attributes corresponding to each FD
-	private Map<Integer, Map<Integer, Long>> mClientFilePointerMapping; // Client position corresponding to each open FD
+	private Map<Integer, Map<Integer, Long>> mClientFilePointerMapping; // Clients position corresponding to each open FD
 
 	// TODO: Handle recycling of FDs
 	private static int sFdCount = 0; // Used to assign new FDs.
@@ -58,7 +57,7 @@ public class MetadataServer {
 		}
 		Map<Integer, Long> clientMap = mClientFilePointerMapping.get(fd);
 		if (clientMap.get(client_id) != null) {
-			// Client already has file open. Possibly didn't call a close?
+			// Clients already has file open. Possibly didn't call a close?
 			return fd;
 		}
 		clientMap = new HashMap<>();
@@ -76,7 +75,7 @@ public class MetadataServer {
 		}
 		Long offset = clientMap.remove(client_id);
 		if (offset == null) {
-			// Client calling close on file which it has not opened
+			// Clients calling close on file which it has not opened
 			return false;
 		}
 		mClientFilePointerMapping.put(fd, clientMap); // Update client map
@@ -92,7 +91,7 @@ public class MetadataServer {
 		}
 		Long oldOffset = clientMap.get(client_id);
 		if (oldOffset == null) {
-			// Client has not opened the file before
+			// Clients has not opened the file before
 			return -1;
 		}
 		clientMap.put(client_id, offset); // Update offset
@@ -165,7 +164,7 @@ public class MetadataServer {
 		}
 		Long oldOffset = clientMap.get(client_id);
 		if (oldOffset == null) {
-			// Client has not opened the file before
+			// Clients has not opened the file before
 			return -1;
 		}
 		List<Integer> chunksForFile = mFdToChunkMapping.get(fd);
@@ -190,7 +189,7 @@ public class MetadataServer {
 		}
 		Long oldOffset = clientMap.get(client_id);
 		if (oldOffset == null) {
-			// Client has not opened the file before
+			// Clients has not opened the file before
 			return false;
 		}
 		List<Integer> chunksForFile = mFdToChunkMapping.get(fd);

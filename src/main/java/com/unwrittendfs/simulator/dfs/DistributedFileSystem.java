@@ -1,17 +1,16 @@
 package com.unwrittendfs.simulator.dfs;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.json.simple.JSONObject;
-
 import com.unwrittendfs.simulator.dataserver.DataLocation;
 import com.unwrittendfs.simulator.dataserver.DataServer;
 import com.unwrittendfs.simulator.dataserver.DataserverConfiguration;
 import com.unwrittendfs.simulator.file.FileAttribute;
 import com.unwrittendfs.simulator.utils.ConfigUtils;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class DistributedFileSystem {
 
@@ -20,19 +19,20 @@ public class DistributedFileSystem {
 	private ClusterConfiguration mClusterConfiguration; // Holds instance of cluster configuration
 	private Map<Integer, DataServer> mDataServerMap; // List of available data-servers
 
-	private DistributedFileSystem(ClusterConfiguration config) {
+	private DistributedFileSystem(ClusterConfiguration config, List<DataserverConfiguration> dataserverConfigurations) {
 		mClusterConfiguration = config;
 		mMetadataServer = new MetadataServer();
 		mDataServerMap = new HashMap<Integer, DataServer>();
-		Map<Integer, DataserverConfiguration> configs = config.getAllDataserverConfigurations();
-		for (int key : configs.keySet()) {
-			mDataServerMap.put(key, new DataServer(configs.get(key)));
+
+
+		for(DataserverConfiguration server : dataserverConfigurations){
+			mDataServerMap.put(server.getDataServerId(), new DataServer(server));
 		}
 	}
 
-	public static DistributedFileSystem createInstance(JSONObject config) {
+	public static DistributedFileSystem createInstance(String config, List<DataserverConfiguration> dataserverConfigurations) throws IOException {
 		if (sInstance == null) {
-			sInstance = new DistributedFileSystem(ConfigUtils.getClusterConfig(config));
+			sInstance = new DistributedFileSystem(ConfigUtils.getClusterConfig(config), dataserverConfigurations);
 			return sInstance;
 		} else {
 			return null; // Singleton instance has already been created
@@ -65,7 +65,7 @@ public class DistributedFileSystem {
 		// Get the current offset for this client for this FD
 		long offset = mMetadataServer.getOffsetForClient(fd, client_id);
 		if (offset == -1) {
-			// Client has not yet opened file
+			// Clients has not yet opened file
 			return -1;
 		}
 		// Identify which chunks to read.
@@ -116,7 +116,7 @@ public class DistributedFileSystem {
 		// Get the current offset for this client for this FD
 		long offset = mMetadataServer.getOffsetForClient(fd, client_id);
 		if (offset == -1) {
-			// Client has not yet opened file
+			// Clients has not yet opened file
 			return -1;
 		}
 		// Identify which chunks to overwrite and how many new chunks need to be created
