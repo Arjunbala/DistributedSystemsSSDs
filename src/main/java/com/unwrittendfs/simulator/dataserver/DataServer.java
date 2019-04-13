@@ -108,6 +108,7 @@ public class DataServer {
 				for(long i=start;i<start+mConfig.getPagesPerBlock();i++) {
 					pages.add(i);
 					mPageList.put(i, PageStatus.VALID);
+					increment(mWriteMap, i);
 				}
 				numBlocks--;
 				if(numBlocks == 0) {
@@ -131,6 +132,7 @@ public class DataServer {
 			if(mPageList.get(start) == PageStatus.FREE) {
 				pages.add(start);
 				mPageList.put(start, PageStatus.VALID); // Mark page as in use
+				increment(mWriteMap, start);
 				numPages--;
 				if(numPages == 0) {
 					break;
