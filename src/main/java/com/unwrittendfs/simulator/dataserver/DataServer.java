@@ -63,6 +63,7 @@ public class DataServer {
 		return bytesRead;
 	}
 	
+	// TODO: Do GC and then write if enough space is not available
 	public long write(int chunk_id, long chunk_size) {
 		int numPagesToAllocate = (int) (chunk_size/mConfig.getPageSize());
 		int numBlocksToAllocate = numPagesToAllocate/mConfig.getPagesPerBlock();
@@ -71,7 +72,18 @@ public class DataServer {
 		// For remaining pages, allocate them page wise
 		int remainingPagesToAllocate = numPagesToAllocate - pagesAllocatedAsBlocks.size();
 		List<Long> pagesAllocated = allocatePages(remainingPagesToAllocate);
-		// TODO: Do GC and then write if enough space is not available
+		List<Long> oldPagesOfChunk = mChunkToPageMapping.get(chunk_id);
+		if(oldPagesOfChunk != null) {
+			// Means that chunk is being overwritten. Mark old pages as invalid
+			for(Long page : oldPagesOfChunk) {
+				mPageList.put(page, PageStatus.INVALID);
+			}
+		}
+		// Update pages allocated to this chunk ID
+		List<Long> allNewPagesAllocated = new ArrayList<Long>();
+		allNewPagesAllocated.addAll(pagesAllocatedAsBlocks);
+		allNewPagesAllocated.addAll(pagesAllocated);
+		mChunkToPageMapping.put(chunk_id, allNewPagesAllocated);
 		return (pagesAllocated.size()+pagesAllocatedAsBlocks.size())*mConfig.getPageSize();
 	}
 	
