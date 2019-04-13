@@ -2,8 +2,6 @@ package com.unwrittendfs.simulator.dataserver;
 
 import java.util.Random;
 
-import org.json.simple.JSONObject;
-
 public class DataserverConfiguration {
 	
 	private int mPageSize;
@@ -13,12 +11,8 @@ public class DataserverConfiguration {
 	private int mRandomSeed;
 	private Random mRand;
 	private int mMaxPageEraseCount;
-	
-	public DataserverConfiguration(JSONObject config) {
-		// TODO: Initialize members from config
-		mRand = new Random(mRandomSeed);
-	}
-	
+	private int dataServerId;
+
 	public int getPageSize() {
 		return mPageSize;
 	}
@@ -41,5 +35,69 @@ public class DataserverConfiguration {
 	
 	public int getMaxEraseCount() {
 		return mMaxPageEraseCount;
+	}
+
+	public int getmPageSize() {
+		return mPageSize;
+	}
+
+	public void setmPageSize(int mPageSize) {
+		this.mPageSize = mPageSize;
+	}
+
+	public int getmPagesPerBlock() {
+		return mPagesPerBlock;
+	}
+
+	public void setmPagesPerBlock(int mPagesPerBlock) {
+		this.mPagesPerBlock = mPagesPerBlock;
+	}
+
+	public long getmTotalPages() {
+		return mTotalPages;
+	}
+
+	public void setmTotalPages(long mTotalPages) {
+		this.mTotalPages = mTotalPages;
+	}
+
+	public int getmMaxReadRetries() {
+		return mMaxReadRetries;
+	}
+
+	public void setmMaxReadRetries(int mMaxReadRetries) {
+		this.mMaxReadRetries = mMaxReadRetries;
+	}
+
+	public int getmRandomSeed() {
+		return mRandomSeed;
+	}
+
+	public void setmRandomSeed(int mRandomSeed) {
+		this.mRandomSeed = mRandomSeed;
+	}
+
+	public Random getmRand() {
+		return mRand;
+	}
+
+	public void setmRand(Random mRand) {
+		this.mRand = mRand;
+	}
+
+	public int getmMaxPageEraseCount() {
+		return mMaxPageEraseCount;
+	}
+
+	public void setmMaxPageEraseCount(int mMaxPageEraseCount) {
+		this.mMaxPageEraseCount = mMaxPageEraseCount;
+	}
+
+	public int getDataServerId() {
+		return dataServerId;
+	}
+
+	public void setDataServerId(int dataServerId) {
+		this.dataServerId = dataServerId;
 	}
 }
