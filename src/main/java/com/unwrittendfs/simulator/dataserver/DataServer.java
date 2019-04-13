@@ -45,14 +45,14 @@ public class DataServer {
 		}
 	}
 	
-	public boolean read(int chunk_id) {
+	public long read(int chunk_id) {
 		// TODO: Implement
-		return true;
+		return 0;
 	}
 	
-	public boolean write(int chunk_id) {
+	public long write(int chunk_id) {
 		// TODO: Implement
-		return true;
+		return 0;
 	}
 	
 	public boolean deleteChunks(List<Integer> chunk_ids) {

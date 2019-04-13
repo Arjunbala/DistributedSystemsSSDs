@@ -20,6 +20,7 @@ public class MetadataServer {
 
 	// TODO: Handle recycling of FDs
 	private static int sFdCount = 0; // Used to assign new FDs.
+	private static int sChunkCount = 0; // Used to assign chunk IDs.
 
 	public MetadataServer() {
 		// Initialize datastructures
@@ -90,7 +91,7 @@ public class MetadataServer {
 			return -1;
 		}
 		Long oldOffset = clientMap.get(client_id);
-		if(oldOffset == null) {
+		if (oldOffset == null) {
 			// Client has not opened the file before
 			return -1;
 		}
@@ -98,17 +99,17 @@ public class MetadataServer {
 		mClientFilePointerMapping.put(fd, clientMap); // Update client map for FD
 		return offset;
 	}
-	
+
 	public Map<Integer, List<Integer>> deleteFile(int fd) {
 		String filename = null;
 		// Find filename
-		for(String key : mFileDescriptorMapping.keySet()) {
-			if(mFileDescriptorMapping.get(key).equals(fd)) {
+		for (String key : mFileDescriptorMapping.keySet()) {
+			if (mFileDescriptorMapping.get(key).equals(fd)) {
 				filename = key;
 				break;
 			}
 		}
-		if(filename == null) {
+		if (filename == null) {
 			// FD does not exist
 			return null;
 		}
@@ -117,11 +118,11 @@ public class MetadataServer {
 		mFileAttributeMapping.remove(fd);
 		Map<Integer, List<Integer>> deletedChunks = new HashMap<Integer, List<Integer>>();
 		List<Integer> chunks = mFdToChunkMapping.remove(fd);
-		for(Integer i : chunks) {
+		for (Integer i : chunks) {
 			List<DataLocation> locations = mChunkIdToDataServerMapping.remove(i);
-			for(DataLocation location : locations) {
+			for (DataLocation location : locations) {
 				int dataserver = location.getDataServer();
-				if(deletedChunks.get(dataserver) == null) { // First time encountering this DS
+				if (deletedChunks.get(dataserver) == null) { // First time encountering this DS
 					deletedChunks.put(dataserver, new ArrayList<Integer>());
 				}
 				// Add chunk to list of deleted chunks for the DS
@@ -130,8 +131,85 @@ public class MetadataServer {
 		}
 		return deletedChunks;
 	}
-	
+
+	public List<Integer> getChunksForFile(int fd) {
+		return mFdToChunkMapping.get(fd);
+	}
+
+	public long getOffsetForClient(int fd, int client_id) {
+		Map<Integer, Long> clientMap = mClientFilePointerMapping.get(fd);
+		if (clientMap == null) {
+			return -1;
+		}
+		Long offset = clientMap.get(client_id);
+		if (offset == null) {
+			return -1;
+		}
+		return offset;
+	}
+
+	public List<DataLocation> getDataLocations(int chunk_id) {
+		return mChunkIdToDataServerMapping.get(chunk_id);
+	}
+
 	public FileAttribute getFileAttributes(int fd) {
 		return mFileAttributeMapping.get(fd);
+	}
+
+	public int addChunkToFile(int fd, int client_id, List<DataLocation> dataServers) {
+		// Get list of client offsets for fd
+		Map<Integer, Long> clientMap = mClientFilePointerMapping.get(fd);
+		if (clientMap == null) {
+			// File does not exist
+			return -1;
+		}
+		Long oldOffset = clientMap.get(client_id);
+		if (oldOffset == null) {
+			// Client has not opened the file before
+			return -1;
+		}
+		List<Integer> chunksForFile = mFdToChunkMapping.get(fd);
+		if (chunksForFile == null) {
+			// File is getting data for first time
+			chunksForFile = new ArrayList<Integer>();
+		}
+		chunksForFile.add(sChunkCount); // Allocate new chunk
+		mFdToChunkMapping.put(fd, chunksForFile);
+		// Add dataservers corresponding to chunk
+		mChunkIdToDataServerMapping.put(sChunkCount, dataServers);
+		sChunkCount++;
+		return sChunkCount - 1;
+	}
+
+	public boolean removeChunkFromFile(int fd, int client_id, int chunk_id) {
+		// Get list of client offsets for fd
+		Map<Integer, Long> clientMap = mClientFilePointerMapping.get(fd);
+		if (clientMap == null) {
+			// File does not exist
+			return false;
+		}
+		Long oldOffset = clientMap.get(client_id);
+		if (oldOffset == null) {
+			// Client has not opened the file before
+			return false;
+		}
+		List<Integer> chunksForFile = mFdToChunkMapping.get(fd);
+		if(chunksForFile == null) {
+			return false;
+		}
+		List<Integer> chunks = mFdToChunkMapping.get(fd);
+		chunks.remove(chunk_id);
+		mFdToChunkMapping.put(fd, chunks);
+		mChunkIdToDataServerMapping.remove(chunk_id);
+		return true;
+	}
+	
+	public boolean updateFileSize(int fd, long size, boolean increase) {
+		FileAttribute fileattr = mFileAttributeMapping.get(fd);
+		if(increase) {
+			return fileattr.increaseFileSize(Simulation.getSimulatorTime(), size);
+		} else {
+			return fileattr.decreaseFileSize(Simulation.getSimulatorTime(), size);
+		}
 	}
 }
