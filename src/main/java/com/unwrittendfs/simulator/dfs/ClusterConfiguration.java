@@ -1,10 +1,5 @@
 package com.unwrittendfs.simulator.dfs;
 
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter
-@Setter
 public class ClusterConfiguration {
 	
 	private long mChunkSize;
