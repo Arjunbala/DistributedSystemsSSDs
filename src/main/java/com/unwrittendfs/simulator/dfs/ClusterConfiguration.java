@@ -4,7 +4,8 @@ public class ClusterConfiguration {
 	
 	private long mChunkSize;
 	private long mNumReplicas;
-	
+
+
 	public long getChunkSize() {
 		return mChunkSize;
 	}
@@ -13,4 +14,11 @@ public class ClusterConfiguration {
 		return mNumReplicas;
 	}
 
+	public void setmChunkSize(long mChunkSize) {
+		this.mChunkSize = mChunkSize;
+	}
+
+	public void setmNumReplicas(long mNumReplicas) {
+		this.mNumReplicas = mNumReplicas;
+	}
 }

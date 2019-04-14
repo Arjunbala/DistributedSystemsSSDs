@@ -1,5 +1,7 @@
 package com.unwrittendfs.simulator.dataserver;
 
+import com.unwrittendfs.simulator.dfs.cache.Cache;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +23,7 @@ public class DataServer {
 	private Map<Long, Integer> mEraseMap;
 	private Map<Long, Integer> mReadMap;
 	private Map<Long, Integer> mWriteMap;
+	private Cache cacheLayer;
 	
 	// Configuration Structures
 	private DataserverConfiguration mConfig;
@@ -44,23 +47,32 @@ public class DataServer {
 		for(long i=0;i<config.getTotalNumPages();i++) {
 			mWriteMap.put(i, 0);
 		}
+		cacheLayer = new Cache(config.getCacheSize());
 	}
 	
 	// TODO: Add caching logic
 	public long read(int chunk_id) {
+
 		List<Long> pagesToRead = mChunkToPageMapping.get(chunk_id);
 		if(pagesToRead == null) {
 			// Chunk does not exist in SSD
 			return -1;
 		}
 		long bytesRead = 0;
+
 		for(Long page : pagesToRead) {
-			if(mPageList.get(page) == PageStatus.VALID) {
-				// TODO: Implement retry logic based on an probabilistic error function
+			if(cacheLayer.read(page)){
 				bytesRead += mConfig.getPageSize();
-				increment(mReadMap, page);
+			} else {
+				if (mPageList.get(page) == PageStatus.VALID) {
+					// TODO: Implement retry logic based on an probabilistic error function
+					bytesRead += mConfig.getPageSize();
+					increment(mReadMap, page);
+					cacheLayer.add(page);
+				}
 			}
 		}
+
 		return bytesRead;
 	}
 	
@@ -78,6 +90,8 @@ public class DataServer {
 			// Means that chunk is being overwritten. Mark old pages as invalid
 			for(Long page : oldPagesOfChunk) {
 				mPageList.put(page, PageStatus.INVALID);
+				// If I don't do it here then GC has to take care of removing it from the cache
+				cacheLayer.invalidateCache(page);
 			}
 		}
 		// Update pages allocated to this chunk ID
@@ -153,6 +167,7 @@ public class DataServer {
 				if(mPageList.get(page) != PageStatus.FREE) {
 					mPageList.put(page, PageStatus.INVALID);
 				}
+				cacheLayer.invalidateCache(page);
 			}
 		}
 		return true;
