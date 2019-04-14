@@ -1,14 +1,18 @@
 package com.unwrittendfs.simulator.dfs;
 
+import com.unwrittendfs.simulator.Simulation;
 import com.unwrittendfs.simulator.dataserver.DataLocation;
 import com.unwrittendfs.simulator.dataserver.DataServer;
 import com.unwrittendfs.simulator.dataserver.DataserverConfiguration;
 
 import java.util.*;
+import java.util.logging.Logger;
 
 public class GoogleFileSystem extends DistributedFileSystem {
 	
 	private Map<Integer, Long> mDataServerLastCreateMap;
+
+	private static Logger sLog;
 
 	public GoogleFileSystem(ClusterConfiguration config, List<DataserverConfiguration> dataserverConfigs) {
 		super(config, dataserverConfigs);
@@ -16,6 +20,8 @@ public class GoogleFileSystem extends DistributedFileSystem {
 		for(Integer dataserver : mDataServerMap.keySet()) {
 			mDataServerLastCreateMap.put(dataserver, (long) 0);
 		}
+		sLog = Logger.getLogger(GoogleFileSystem.class.getSimpleName());
+		sLog.setLevel(Simulation.getLogLevel());
 	}
 	
 	@Override
@@ -34,11 +40,13 @@ public class GoogleFileSystem extends DistributedFileSystem {
 	protected List<DataLocation> getLocationsForNewChunk() {
 		// Arrange servers by timestamp
 		List<DataServerTimestamp> servers = new ArrayList<DataServerTimestamp>();
+
 		for(Integer server : mDataServerLastCreateMap.keySet()) {
 			servers.add(new DataServerTimestamp(server, mDataServerLastCreateMap.get(server)));
 		}
 		// Sort the servers by timestamp at which last chunk was created
 		Collections.sort(servers, new DataServerTimestampComparator());
+
 		double createdFraction = mClusterConfiguration.getRecentCreationsFraction();
 		// Pick servers to consider
 		int number_servers_to_consider = (int) Math.max((int)createdFraction*servers.size(), 
@@ -54,8 +62,11 @@ public class GoogleFileSystem extends DistributedFileSystem {
 		Collections.sort(serverUtilizations, new DataServerUtilizationComparator());
 		// We now need to consider the servers to suit replicas.
 		serverUtilizations = serverUtilizations.subList(0, mClusterConfiguration.getNumberReplicas());
+
 		List<DataLocation> locations = new ArrayList<DataLocation>(); // final list of locations
-		boolean isPrimaryAssigned = false; // one primary ; rest are secondaries
+		boolean isPrimaryAssigned = false;
+
+		// one primary ; rest are secondaries
 		for(DataServerUtilization server : serverUtilizations) {
 			if(isPrimaryAssigned) {
 				locations.add(new DataLocation(server.getDataServer(), DataLocation.DataRole.SECONDARY_REPLICA));

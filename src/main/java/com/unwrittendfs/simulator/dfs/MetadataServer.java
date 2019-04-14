@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 public class MetadataServer {
 
@@ -16,6 +17,8 @@ public class MetadataServer {
 	private Map<Integer, List<DataLocation>> mChunkIdToDataServerMapping; // Map Chunk ID to list of dataservers
 	private Map<Integer, FileAttribute> mFileAttributeMapping; // File attributes corresponding to each FD
 	private Map<Integer, Map<Integer, Long>> mClientFilePointerMapping; // Clients position corresponding to each open FD
+
+	private static Logger sLog;
 
 	// TODO: Handle recycling of FDs
 	private static int sFdCount = 0; // Used to assign new FDs.
@@ -28,12 +31,16 @@ public class MetadataServer {
 		mChunkIdToDataServerMapping = new HashMap<Integer, List<DataLocation>>();
 		mFileAttributeMapping = new HashMap<Integer, FileAttribute>();
 		mClientFilePointerMapping = new HashMap<Integer, Map<Integer, Long>>();
+
+		sLog = Logger.getLogger(MetadataServer.class.getSimpleName());
+		sLog.setLevel(Simulation.getLogLevel());
 	}
 
 	public int createNewFile(String filename, int client_id) {
 		// First check if file already exists
 		if (mFileDescriptorMapping.get(filename) != null) {
 			// File already exists
+			sLog.info("File " + filename + " already exists for client " +  client_id);
 			return -1;
 		}
 		// It is actually a new file
@@ -42,7 +49,7 @@ public class MetadataServer {
 		mFileAttributeMapping.put(sFdCount, new FileAttribute(Simulation.getSimulatorTime()));
 		// Create mapping from client to this FD
 		Map<Integer, Long> clientMap = new HashMap<>();
-		clientMap.put(client_id, (long) 0); // initial offset for client in file is 0
+		clientMap.put(client_id, 0L); // initial offset for client in file is 0
 		mClientFilePointerMapping.put(sFdCount, clientMap);
 		mFdToChunkMapping.put(sFdCount, new ArrayList<Integer>());
 		sFdCount++;
@@ -54,15 +61,17 @@ public class MetadataServer {
 		Integer fd = mFileDescriptorMapping.get(filename);
 		if (fd == null) {
 			// File does not exist
+			sLog.warning("OpenFile call without creating the file : " + filename + " by clientId " + client_id );
 			return -1;
 		}
 		Map<Integer, Long> clientMap = mClientFilePointerMapping.get(fd);
 		if (clientMap.get(client_id) != null) {
 			// Clients already has file open. Possibly didn't call a close?
+			sLog.info("OpenFile call for already opened file : " + filename + "  by clientId " +  client_id);
 			return fd;
 		}
 		clientMap = new HashMap<>();
-		clientMap.put(client_id, (long) 0); // initial offset of 0 for client on an open()
+		clientMap.put(client_id,  0L); // initial offset of 0 for client on an open()
 		mClientFilePointerMapping.put(fd, clientMap);
 		return fd;
 	}
@@ -72,11 +81,13 @@ public class MetadataServer {
 		Map<Integer, Long> clientMap = mClientFilePointerMapping.get(fd);
 		if (clientMap == null) {
 			// File does not exist
+			sLog.info("closeFile call for non-existent fd : " + fd + "  by clientId " +  client_id);
 			return false;
 		}
 		Long offset = clientMap.remove(client_id);
 		if (offset == null) {
 			// Clients calling close on file which it has not opened
+			sLog.info("closeFile call for non-opened fd : " + fd + "  by clientId " +  client_id);
 			return false;
 		}
 		mClientFilePointerMapping.put(fd, clientMap); // Update client map
@@ -87,12 +98,13 @@ public class MetadataServer {
 		// Get list of client offsets for fd
 		Map<Integer, Long> clientMap = mClientFilePointerMapping.get(fd);
 		if (clientMap == null) {
-			// File does not exist
+			sLog.info("seekFile call for non-existent fd : " + fd + "  by clientId " +  client_id);
 			return -1;
 		}
 		Long oldOffset = clientMap.get(client_id);
 		if (oldOffset == null) {
 			// Clients has not opened the file before
+			sLog.info("seekFile call for non-opened fd : " + fd + "  by clientId " +  client_id);
 			return -1;
 		}
 		clientMap.put(client_id, offset); // Update offset
@@ -101,6 +113,7 @@ public class MetadataServer {
 	}
 
 	public Map<Integer, List<Integer>> deleteFile(int fd) {
+		sLog.info("Delete File FD : " + fd);
 		String filename = null;
 		// Find filename
 		for (String key : mFileDescriptorMapping.keySet()) {
@@ -122,9 +135,8 @@ public class MetadataServer {
 			List<DataLocation> locations = mChunkIdToDataServerMapping.remove(i);
 			for (DataLocation location : locations) {
 				int dataserver = location.getDataServer();
-				if (deletedChunks.get(dataserver) == null) { // First time encountering this DS
-					deletedChunks.put(dataserver, new ArrayList<Integer>());
-				}
+				// First time encountering this DS
+				deletedChunks.computeIfAbsent(dataserver, k -> new ArrayList<Integer>());
 				// Add chunk to list of deleted chunks for the DS
 				deletedChunks.get(dataserver).add(i);
 			}
@@ -139,10 +151,12 @@ public class MetadataServer {
 	public long getOffsetForClient(int fd, int client_id) {
 		Map<Integer, Long> clientMap = mClientFilePointerMapping.get(fd);
 		if (clientMap == null) {
+			sLog.info("Client Map is null while getting offset of FD  : " + fd);
 			return -1;
 		}
 		Long offset = clientMap.get(client_id);
 		if (offset == null) {
+			sLog.info("Client Map is null while getting offset of FD  : " + fd);
 			return -1;
 		}
 		return offset;
@@ -186,6 +200,7 @@ public class MetadataServer {
 		Map<Integer, Long> clientMap = mClientFilePointerMapping.get(fd);
 		if (clientMap == null) {
 			// File does not exist
+			sLog.info("clientMap does not exist : FD " + fd + " client ID" + client_id );
 			return false;
 		}
 		Long oldOffset = clientMap.get(client_id);

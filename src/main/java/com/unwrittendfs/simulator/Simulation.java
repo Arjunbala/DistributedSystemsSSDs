@@ -15,11 +15,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class Simulation {
 	
-	private static int sSimulatorTime = 0;
+	private static Long sSimulatorTime = 0l;
 	private static JSONParser jsonParser = new JSONParser();
 	private static DistributedFileSystem mDfs;
 	private static final Level sLogLevel = Level.INFO;
@@ -85,7 +84,7 @@ public class Simulation {
 	}
 
 	
-	public static int getSimulatorTime() {
+	public static Long getSimulatorTime() {
 		return sSimulatorTime;
 	}
 	

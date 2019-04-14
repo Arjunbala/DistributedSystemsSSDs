@@ -1,14 +1,18 @@
 package com.unwrittendfs.simulator.dfs.cache;
 
+import com.unwrittendfs.simulator.Simulation;
+
 import java.util.*;
+import java.util.logging.Logger;
 
 public class Cache {
+
     private class CacheObject{
         private Long pageId;
-        private Date lastTimeRead;
-
-
+        private Long lastTimeRead;
     }
+
+    private static Logger sLog;
     private Long cacheSize;
     private Map<Long, CacheObject> pageMap;
     private Queue<CacheObject> cacheQueue;
@@ -19,6 +23,8 @@ public class Cache {
         this.maxCountOfPages = cacheSize/pageSize;
         pageMap = new HashMap<>();
         cacheQueue = new PriorityQueue<>(Comparator.comparing(o -> o.lastTimeRead));
+        sLog = Logger.getLogger(Cache.class.getSimpleName());
+        sLog.setLevel(Simulation.getLogLevel());
     }
 
     public void add(Long pageId){
@@ -26,8 +32,9 @@ public class Cache {
             if(pageMap.size() ==  maxCountOfPages){
                 evict();
             }
+            sLog.info("Page Added in the cache: " + pageId);
             CacheObject cacheObject = new CacheObject();
-            cacheObject.lastTimeRead = new Date();
+            cacheObject.lastTimeRead = Simulation.getSimulatorTime();
             cacheObject.pageId = pageId;
             cacheQueue.add(cacheObject);
             pageMap.put(pageId, cacheObject);
@@ -38,12 +45,14 @@ public class Cache {
         if(cacheQueue.size() > 0) {
             CacheObject cacheToBeEvicted = cacheQueue.poll();
             pageMap.remove(cacheToBeEvicted.pageId);
+            sLog.info("Page Evicted in the cache: " + cacheToBeEvicted.pageId);
         }
     }
 
     public boolean read(Long pageId){
         if(pageMap.containsKey(pageId)){
-            pageMap.get(pageId).lastTimeRead = new Date();
+            sLog.info("Page Found in the cache: " + pageId);
+            pageMap.get(pageId).lastTimeRead = Simulation.getSimulatorTime();
             return true;
         } else {
             return false;
@@ -55,6 +64,7 @@ public class Cache {
             CacheObject cacheObject = pageMap.get(pageId);
             cacheQueue.remove(cacheObject);
             pageMap.remove(pageId);
+            sLog.info("Page being invalidated in the cache: " + pageId);
         }
     }
 
