@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 public class GoogleFileSystem extends DistributedFileSystem {
 	
 	private Map<Integer, Long> mDataServerLastCreateMap;
+	private static Logger sLog; // Instance of logger
 
 	private static Logger sLog;
 
@@ -69,8 +70,10 @@ public class GoogleFileSystem extends DistributedFileSystem {
 		// one primary ; rest are secondaries
 		for(DataServerUtilization server : serverUtilizations) {
 			if(isPrimaryAssigned) {
+				sLog.info("New secondary chunk DS: " + Integer.toString(server.getDataServer()));
 				locations.add(new DataLocation(server.getDataServer(), DataLocation.DataRole.SECONDARY_REPLICA));
 			} else {
+				sLog.info("New primary chunk DS: " + Integer.toString(server.getDataServer()));
 				locations.add(new DataLocation(server.getDataServer(), DataLocation.DataRole.PRIMARY_REPLICA));
 				isPrimaryAssigned = true;
 			}

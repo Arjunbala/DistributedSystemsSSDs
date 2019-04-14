@@ -53,6 +53,7 @@ public class Simulation {
 		read = mDfs.read(fd, buffer, 1024, 1);
 		sSimulatorTime += 1;
 		System.out.println(read);
+		mDfs.printStats();
 		return;
 	}
 
