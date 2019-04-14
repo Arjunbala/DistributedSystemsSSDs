@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class DistributedFileSystem {
@@ -48,10 +49,10 @@ public class DistributedFileSystem {
 	}
 
 	public long read(int fd, String buffer, long count, int client_id) {
-		sLog.info("Here");
 		// Get the list of chunks from MDS
 		List<Integer> chunks = mMetadataServer.getChunksForFile(fd);
 		if (chunks == null) {
+			sLog.warning("FD:" + Integer.toString(fd) + " File does not exist");
 			// No contents in file
 			return -1;
 		}
@@ -59,8 +60,10 @@ public class DistributedFileSystem {
 		long offset = mMetadataServer.getOffsetForClient(fd, client_id);
 		if (offset == -1) {
 			// Clients has not yet opened file
+			sLog.warning("FD:" + Integer.toString(fd) + " Client has not opened file");
 			return -1;
 		}
+		sLog.info("FD:" + Integer.toString(fd) + " chunks:" + chunks.toString());
 		// Identify which chunks to read.
 		int start_chunk = (int) (offset / mClusterConfiguration.getChunkSize());
 		int end_chunk = (int) ((offset + count) / mClusterConfiguration.getChunkSize());
@@ -72,12 +75,15 @@ public class DistributedFileSystem {
 				// Get data server to read this chunk from
 				List<DataLocation> locations = mMetadataServer.getDataLocations(chunks.get(i));
 				if (locations == null) {
+					sLog.warning("FD:" + Integer.toString(fd) + "Can't find chunk location");
 					break;
 				}
 				// Order the data locations in some priority order for issuing reads.
 				List<DataServer> orderedServers = orderServersToRead(locations);
 				long bytes = 0;
 				for (DataServer server : orderedServers) {
+					sLog.log(Level.INFO, "FD:" + Integer.toString(fd) + " Reading chunk " + Integer.toString(chunks.get(i))
+						+ " Reading from server " + Integer.toString(server.getConfig().getDataServerId()));
 					bytes = server.read(chunks.get(i));
 					if (bytes == mClusterConfiguration.getChunkSize()) {
 						// Was able to read data in it's entirety
@@ -110,9 +116,11 @@ public class DistributedFileSystem {
 		long offset = mMetadataServer.getOffsetForClient(fd, client_id);
 		if (offset == -1) {
 			// Clients has not yet opened file
+			sLog.warning("FD:" + Integer.toString(fd) + " Client has not yet opened file");
 			return -1;
 		}
 		// Identify which chunks to overwrite and how many new chunks need to be created
+		sLog.info("FD:" + Integer.toString(fd) + " count: " + Long.toString(count));
 		int start_chunk = (int) (offset / mClusterConfiguration.getChunkSize());
 		int end_chunk = (int) ((offset + count) / mClusterConfiguration.getChunkSize());
 		int total_chunks_for_file = chunks.size();
@@ -141,6 +149,8 @@ public class DistributedFileSystem {
 			// If all replicas could not be written successfully
 			if(bytes_written < mClusterConfiguration.getChunkSize()*mClusterConfiguration.getNumberReplicas()) {
 				// All replicas not created fully. Remove new chunk ID from cluster and delete data
+				sLog.warning("FD :" + Integer.toString(fd) + " Chunk ID: " + Integer.toString(new_chunk_id)
+						+ " Could not write to chunks");
 				mMetadataServer.removeChunkFromFile(fd, client_id, new_chunk_id);
 				for(DataLocation location : potentialLocations) {
 					mDataServerMap.get(location.getDataServer()).deleteChunks(new ArrayList<>(new_chunk_id));
@@ -166,10 +176,12 @@ public class DistributedFileSystem {
 			List<DataLocation> locations = mMetadataServer.getDataLocations(chunk);
 			for(DataLocation location : locations) {
 				// Always assume that an overwrite will succeed
+				sLog.info("Overwriting chunk " + Integer.toString(chunk) + " at DS " 
+						+ Integer.toString(location.getDataServer()));
 				bytesWritten += mDataServerMap.get(location.getDataServer()).write(chunk, mClusterConfiguration.getChunkSize());
 			}
 		}
-		return bytesWritten;
+		return bytesWritten/mClusterConfiguration.getmNumReplicas();
 	}
 	
 	protected List<DataLocation> getLocationsForNewChunk() {
@@ -197,5 +209,11 @@ public class DistributedFileSystem {
 
 	public FileAttribute stat(int fd) {
 		return mMetadataServer.getFileAttributes(fd);
+	}
+	
+	public void printStats() {
+		for(Integer dataserver : mDataServerMap.keySet()) {
+			mDataServerMap.get(dataserver).printStats();
+		}
 	}
 }

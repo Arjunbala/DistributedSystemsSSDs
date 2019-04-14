@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 public class MetadataServer {
 
@@ -16,7 +17,8 @@ public class MetadataServer {
 	private Map<Integer, List<DataLocation>> mChunkIdToDataServerMapping; // Map Chunk ID to list of dataservers
 	private Map<Integer, FileAttribute> mFileAttributeMapping; // File attributes corresponding to each FD
 	private Map<Integer, Map<Integer, Long>> mClientFilePointerMapping; // Clients position corresponding to each open FD
-
+	private static Logger sLog; // Instance of logger
+	
 	// TODO: Handle recycling of FDs
 	private static int sFdCount = 0; // Used to assign new FDs.
 	private static int sChunkCount = 0; // Used to assign chunk IDs.
@@ -28,12 +30,15 @@ public class MetadataServer {
 		mChunkIdToDataServerMapping = new HashMap<Integer, List<DataLocation>>();
 		mFileAttributeMapping = new HashMap<Integer, FileAttribute>();
 		mClientFilePointerMapping = new HashMap<Integer, Map<Integer, Long>>();
+		sLog = Logger.getLogger(MetadataServer.class.getSimpleName());
+		sLog.setLevel(Simulation.getLogLevel());
 	}
 
 	public int createNewFile(String filename, int client_id) {
 		// First check if file already exists
 		if (mFileDescriptorMapping.get(filename) != null) {
 			// File already exists
+			sLog.warning("Filename: " + filename + " already exists");
 			return -1;
 		}
 		// It is actually a new file
@@ -54,6 +59,7 @@ public class MetadataServer {
 		Integer fd = mFileDescriptorMapping.get(filename);
 		if (fd == null) {
 			// File does not exist
+			sLog.warning("Filename: " + filename + " does not exist");
 			return -1;
 		}
 		Map<Integer, Long> clientMap = mClientFilePointerMapping.get(fd);
@@ -72,11 +78,14 @@ public class MetadataServer {
 		Map<Integer, Long> clientMap = mClientFilePointerMapping.get(fd);
 		if (clientMap == null) {
 			// File does not exist
+			sLog.warning("FD: " + Integer.toString(fd) + " does not exist");
 			return false;
 		}
 		Long offset = clientMap.remove(client_id);
 		if (offset == null) {
 			// Clients calling close on file which it has not opened
+			sLog.warning("FD: " + Integer.toString(fd) + " Client " + Integer.toString(client_id)
+					+ " calling close on file it has not opened");
 			return false;
 		}
 		mClientFilePointerMapping.put(fd, clientMap); // Update client map
@@ -88,11 +97,14 @@ public class MetadataServer {
 		Map<Integer, Long> clientMap = mClientFilePointerMapping.get(fd);
 		if (clientMap == null) {
 			// File does not exist
+			sLog.warning("FD: " + Integer.toString(fd) + " does not exist");
 			return -1;
 		}
 		Long oldOffset = clientMap.get(client_id);
 		if (oldOffset == null) {
 			// Clients has not opened the file before
+			sLog.warning("FD: " + Integer.toString(fd) + " Client " + Integer.toString(client_id)
+			+ " calling close on file it has not opened");
 			return -1;
 		}
 		clientMap.put(client_id, offset); // Update offset
@@ -111,6 +123,7 @@ public class MetadataServer {
 		}
 		if (filename == null) {
 			// FD does not exist
+			sLog.warning("FD: " + Integer.toString(fd) + " does not exist");
 			return null;
 		}
 		mFileDescriptorMapping.remove(filename);
@@ -161,13 +174,17 @@ public class MetadataServer {
 		Map<Integer, Long> clientMap = mClientFilePointerMapping.get(fd);
 		if (clientMap == null) {
 			// File does not exist
+			sLog.warning("FD: " + Integer.toString(fd) + " does not exist during add chunk");
 			return -1;
 		}
 		Long oldOffset = clientMap.get(client_id);
 		if (oldOffset == null) {
 			// Clients has not opened the file before
+			sLog.warning("FD: " + Integer.toString(fd) + " Client " + Integer.toString(client_id)
+				+ " has not opened file during add chunk");
 			return -1;
 		}
+		sLog.info("Adding chunk to file with fd: " + Integer.toString(fd));
 		List<Integer> chunksForFile = mFdToChunkMapping.get(fd);
 		if (chunksForFile == null) {
 			// File is getting data for first time
@@ -186,11 +203,14 @@ public class MetadataServer {
 		Map<Integer, Long> clientMap = mClientFilePointerMapping.get(fd);
 		if (clientMap == null) {
 			// File does not exist
+			sLog.warning("FD: " + Integer.toString(fd) + " does not exist during remove chunk");
 			return false;
 		}
 		Long oldOffset = clientMap.get(client_id);
 		if (oldOffset == null) {
 			// Clients has not opened the file before
+			sLog.warning("FD: " + Integer.toString(fd) + " Client " + Integer.toString(client_id)
+			+ " has not opened file during remove chunk");
 			return false;
 		}
 		List<Integer> chunksForFile = mFdToChunkMapping.get(fd);

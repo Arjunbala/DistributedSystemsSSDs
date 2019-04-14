@@ -1,14 +1,17 @@
 package com.unwrittendfs.simulator.dfs;
 
+import com.unwrittendfs.simulator.Simulation;
 import com.unwrittendfs.simulator.dataserver.DataLocation;
 import com.unwrittendfs.simulator.dataserver.DataServer;
 import com.unwrittendfs.simulator.dataserver.DataserverConfiguration;
 
 import java.util.*;
+import java.util.logging.Logger;
 
 public class GoogleFileSystem extends DistributedFileSystem {
 	
 	private Map<Integer, Long> mDataServerLastCreateMap;
+	private static Logger sLog; // Instance of logger
 
 	public GoogleFileSystem(ClusterConfiguration config, List<DataserverConfiguration> dataserverConfigs) {
 		super(config, dataserverConfigs);
@@ -16,6 +19,8 @@ public class GoogleFileSystem extends DistributedFileSystem {
 		for(Integer dataserver : mDataServerMap.keySet()) {
 			mDataServerLastCreateMap.put(dataserver, (long) 0);
 		}
+		sLog = Logger.getLogger(GoogleFileSystem.class.getSimpleName());
+		sLog.setLevel(Simulation.getLogLevel());
 	}
 	
 	@Override
@@ -58,8 +63,10 @@ public class GoogleFileSystem extends DistributedFileSystem {
 		boolean isPrimaryAssigned = false; // one primary ; rest are secondaries
 		for(DataServerUtilization server : serverUtilizations) {
 			if(isPrimaryAssigned) {
+				sLog.info("New secondary chunk DS: " + Integer.toString(server.getDataServer()));
 				locations.add(new DataLocation(server.getDataServer(), DataLocation.DataRole.SECONDARY_REPLICA));
 			} else {
+				sLog.info("New primary chunk DS: " + Integer.toString(server.getDataServer()));
 				locations.add(new DataLocation(server.getDataServer(), DataLocation.DataRole.PRIMARY_REPLICA));
 				isPrimaryAssigned = true;
 			}
