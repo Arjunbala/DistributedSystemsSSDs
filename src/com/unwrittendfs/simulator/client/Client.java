@@ -1,5 +1,10 @@
 package com.unwrittendfs.simulator.client;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class Client {
     private Integer clientLocation;
     private Integer clientId;

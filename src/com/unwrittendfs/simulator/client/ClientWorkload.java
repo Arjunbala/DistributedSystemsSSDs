@@ -1,11 +1,16 @@
 package com.unwrittendfs.simulator.client;
 
 import com.unwrittendfs.simulator.client.workload.Workload;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+
+@Getter
+@Setter
 public class ClientWorkload {
     private Set<Client> Clients;
     private Queue<Workload> workloadQueue;
