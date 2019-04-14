@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 @Getter
 @Setter
 public class ClientWorkload {
-    private Set<Client> Clients;
+    private Set<Integer> ClientId;
     private Queue<Workload> workloadQueue;
 
     private Workload getWorkloadFromQueue(){
@@ -30,6 +30,8 @@ public class ClientWorkload {
         workloadQueue.add(workload);
     }
 
+
+
     public Queue<Workload> getWorkloadQueue() {
         return workloadQueue;
     }
@@ -38,11 +40,11 @@ public class ClientWorkload {
         this.workloadQueue = workloadQueue;
     }
 
-    public Set<Client> getClients() {
-        return Clients;
+    public Set<Integer> getClientId() {
+        return ClientId;
     }
 
-    public void setClients(Set<Client> clients) {
-        Clients = clients;
+    public void setClientId(Set<Integer> clientId) {
+        ClientId = clientId;
     }
 }

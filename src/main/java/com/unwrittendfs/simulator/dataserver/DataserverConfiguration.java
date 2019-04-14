@@ -1,12 +1,7 @@
 package com.unwrittendfs.simulator.dataserver;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import java.util.Random;
 
-@Getter
-@Setter
 public class DataserverConfiguration {
 	
 	private int mPageSize;
@@ -113,5 +108,20 @@ public class DataserverConfiguration {
 
 	public void setCacheSize(Long cacheSize) {
 		this.cacheSize = cacheSize;
+	}
+
+	@Override
+	public String toString() {
+		return "DataserverConfiguration{" +
+				"mPageSize=" + mPageSize +
+				", mPagesPerBlock=" + mPagesPerBlock +
+				", mTotalPages=" + mTotalPages +
+				", mMaxReadRetries=" + mMaxReadRetries +
+				", mRandomSeed=" + mRandomSeed +
+				", mRand=" + mRand +
+				", mMaxPageEraseCount=" + mMaxPageEraseCount +
+				", dataServerId=" + dataServerId +
+				", cacheSize=" + cacheSize +
+				'}';
 	}
 }

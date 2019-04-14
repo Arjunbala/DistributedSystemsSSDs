@@ -8,7 +8,7 @@ import java.util.Map;
 @Getter
 @Setter
 public class Workload {
-    private enum WorkloadType{
+    public enum WorkloadType{
         OPEN,
         CREATE,
         READ,
@@ -20,6 +20,8 @@ public class Workload {
 
     // TODO : Workload Id for logging purpose, We can create and assign workloadId in the code also.
     private Integer workloadId;
+
+    private Integer ClientId;
 
     // Helps to figure out the workload type. Depending on the workloadType, we will have key, value pair in the map.
     // It saves us from creating different POJO for different Workload Type.
@@ -51,5 +53,13 @@ public class Workload {
 
     public void setWorkloadData(Map<String, Object> workloadData) {
         this.workloadData = workloadData;
+    }
+
+    public Integer getClientId() {
+        return ClientId;
+    }
+
+    public void setClientId(Integer clientId) {
+        ClientId = clientId;
     }
 }

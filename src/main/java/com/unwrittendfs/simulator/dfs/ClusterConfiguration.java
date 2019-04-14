@@ -52,5 +52,14 @@ public class ClusterConfiguration {
 	public void setmRecentCreationsFraction(double mRecentCreationsFraction) {
 		this.mRecentCreationsFraction = mRecentCreationsFraction;
 	}
+
+	@Override
+	public String toString() {
+		return "ClusterConfiguration{" +
+				"mChunkSize=" + mChunkSize +
+				", mNumReplicas=" + mNumReplicas +
+				", mRecentCreationsFraction=" + mRecentCreationsFraction +
+				'}';
+	}
 }
 

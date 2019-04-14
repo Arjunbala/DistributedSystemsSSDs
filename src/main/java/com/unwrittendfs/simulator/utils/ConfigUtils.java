@@ -28,7 +28,7 @@ public class ConfigUtils {
 
 	}
 
-	public static List<DataserverConfiguration> getDataServers(String jsonString) throws IOException {
+	public static List<DataserverConfiguration> getDataServers(File jsonString) throws IOException {
 		try {
 			List<DataserverConfiguration> dataserverConfigurations = new ArrayList<>();
 			dataserverConfigurations =  objectMapper.readValue(jsonString, new TypeReference<List<DataserverConfiguration>>(){});
@@ -43,13 +43,13 @@ public class ConfigUtils {
 		}
 	}
 
-	public static List<ClientWorkload> getClientWorkload(String jsonContent) throws IOException {
+	public static List<ClientWorkload> getClientWorkload(File jsonContent) throws IOException {
 		try{
 			List<ClientWorkload> clientWorkloads = new ArrayList<>();
 			clientWorkloads = objectMapper.readValue(jsonContent, new TypeReference<List<ClientWorkload>>(){});
 			return clientWorkloads;
 		} catch (IOException e){
-			System.err.println("Failed to initialize the ClientWorkload");
+			System.err.println("Failed to initialize the ClientWorkload.json");
 			e.printStackTrace();
 			throw e;
 		}
