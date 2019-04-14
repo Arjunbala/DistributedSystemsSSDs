@@ -1,7 +1,12 @@
 package com.unwrittendfs.simulator.dataserver;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.Random;
 
+@Getter
+@Setter
 public class DataserverConfiguration {
 	
 	private int mPageSize;

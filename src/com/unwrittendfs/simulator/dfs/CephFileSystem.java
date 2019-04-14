@@ -20,7 +20,7 @@ public class CephFileSystem  extends DistributedFileSystem  {
         // Since rackId is not part of DS, Randomly assigning the rack Id uniformly to dataServer.
         // This can be changed and become  part of configuration as well
         // Every rack will have atleast 3 dataServers;
-        int rackCount = dataserverConfigurations.size()/3;
+        int rackCount = dataserverConfigurations.size()/config.getNumberReplicas();
         int rackId = 1;
         Date curTime = new Date();
         for(DataserverConfiguration dataServer : dataserverConfigurations){
