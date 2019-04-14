@@ -32,7 +32,7 @@ public class Cache {
             if(pageMap.size() ==  maxCountOfPages){
                 evict();
             }
-            sLog.info("Page Added in the cache: " + pageId);
+//            sLog.info("Page Added in the cache: " + pageId);
             CacheObject cacheObject = new CacheObject();
             cacheObject.lastTimeRead = Simulation.getSimulatorTime();
             cacheObject.pageId = pageId;
@@ -45,13 +45,13 @@ public class Cache {
         if(cacheQueue.size() > 0) {
             CacheObject cacheToBeEvicted = cacheQueue.poll();
             pageMap.remove(cacheToBeEvicted.pageId);
-            sLog.info("Page Evicted in the cache: " + cacheToBeEvicted.pageId);
+//            sLog.info("Page Evicted in the cache: " + cacheToBeEvicted.pageId);
         }
     }
 
     public boolean read(Long pageId){
         if(pageMap.containsKey(pageId)){
-            sLog.info("Page Found in the cache: " + pageId);
+            sLog.info("Page served from cache: " + pageId);
             pageMap.get(pageId).lastTimeRead = Simulation.getSimulatorTime();
             return true;
         } else {
@@ -64,7 +64,7 @@ public class Cache {
             CacheObject cacheObject = pageMap.get(pageId);
             cacheQueue.remove(cacheObject);
             pageMap.remove(pageId);
-            sLog.info("Page being invalidated in the cache: " + pageId);
+//            sLog.info("Page being invalidated in the cache: " + pageId);
         }
     }
 
