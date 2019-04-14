@@ -3,6 +3,8 @@ package com.unwrittendfs.simulator;
 import com.unwrittendfs.simulator.client.workload.Workload;
 import com.unwrittendfs.simulator.dataserver.DataserverConfiguration;
 import com.unwrittendfs.simulator.dfs.ClusterConfiguration;
+import com.unwrittendfs.simulator.dfs.DFSFactory;
+import com.unwrittendfs.simulator.dfs.DistributedFileSystem;
 import com.unwrittendfs.simulator.utils.ConfigUtils;
 import org.json.simple.parser.JSONParser;
 
@@ -17,6 +19,7 @@ public class Simulation {
 	
 	private static int sSimulatorTime = 0;
 	private static JSONParser jsonParser = new JSONParser();
+	private static DistributedFileSystem mDfs;
 	
 	public static void main(String args[]) throws IOException {
 
@@ -27,8 +30,21 @@ public class Simulation {
 		List<DataserverConfiguration> dataserverConfigurations = ConfigUtils.getDataServers
 				(simulation.getFileFromResources("DataServerConfiguration.json"));
 		System.out.println(dataserverConfigurations);
-		List<Workload> workloads = simulation.fileCreationWorkLoad(10);
-
+		//List<Workload> workloads = simulation.fileCreationWorkLoad(10);
+		mDfs = DFSFactory.getInstance(clusterConfiguration.getmType(), clusterConfiguration, dataserverConfigurations);
+		int fd = mDfs.create("abc", 1);
+		System.out.println(fd);
+		String buffer = null;
+		long written = mDfs.write(fd, buffer, 2048, 1);
+		System.out.println(written);
+		long offset = mDfs.seek(fd, 0, 1);
+		long read = mDfs.read(fd, buffer, 1024, 1);
+		System.out.println(read);
+		read = mDfs.read(fd, buffer, 1024, 1);
+		System.out.println(read);
+		mDfs.delete(fd);
+		read = mDfs.read(fd, buffer, 1024, 1);
+		System.out.println(read);
 		return;
 	}
 

@@ -28,15 +28,6 @@ public class DistributedFileSystem {
 		}
 	}
 
-//	public static DistributedFileSystem createInstance(String config, List<DataserverConfiguration> dataserverConfigurations) throws IOException {
-//		if (sInstance == null) {
-//			sInstance = new DistributedFileSystem(ConfigUtils.getClusterConfig(config), dataserverConfigurations);
-//			return sInstance;
-//		} else {
-//			return null; // Singleton instance has already been created
-//		}
-//	}
-
 	public static DistributedFileSystem getInstance() {
 		return sInstance;
 	}
@@ -58,7 +49,7 @@ public class DistributedFileSystem {
 		List<Integer> chunks = mMetadataServer.getChunksForFile(fd);
 		if (chunks == null) {
 			// No contents in file
-			return 0;
+			return -1;
 		}
 		// Get the current offset for this client for this FD
 		long offset = mMetadataServer.getOffsetForClient(fd, client_id);

@@ -18,5 +18,15 @@
     "mMaxPageEraseCount": "5",
     "dataServerId" : "2",
     "cacheSize" : "1024"
+  },
+  {
+    "mPageSize" : "128",
+    "mPagesPerBlock" : "4",
+    "mTotalPages" : "1024",
+    "mMaxReadRetries" : "1",
+    "mRandomSeed" : "4",
+    "mMaxPageEraseCount": "5",
+    "dataServerId" : "3",
+    "cacheSize" : "1024"
   }
 ]

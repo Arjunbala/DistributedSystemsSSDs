@@ -44,6 +44,7 @@ public class MetadataServer {
 		Map<Integer, Long> clientMap = new HashMap<>();
 		clientMap.put(client_id, (long) 0); // initial offset for client in file is 0
 		mClientFilePointerMapping.put(sFdCount, clientMap);
+		mFdToChunkMapping.put(sFdCount, new ArrayList<Integer>());
 		sFdCount++;
 		return sFdCount - 1;
 	}

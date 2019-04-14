@@ -3,14 +3,13 @@ package com.unwrittendfs.simulator.dfs;
 public class ClusterConfiguration {
 	
 	private long mChunkSize;
-
+	private String mType;
 	private int mNumReplicas;
 	private double mRecentCreationsFraction;
 	
 	public ClusterConfiguration() {
 	}
 	
-
 	public long getChunkSize() {
 		return mChunkSize;
 	}
@@ -22,6 +21,14 @@ public class ClusterConfiguration {
 	
 	public double getRecentCreationsFraction() {
 		return mRecentCreationsFraction;
+	}
+
+	public String getmType() {
+		return mType;
+	}
+
+	public void setmType(String mType) {
+		this.mType = mType;
 	}
 
 	public long getmChunkSize() {
@@ -54,6 +61,7 @@ public class ClusterConfiguration {
 				"mChunkSize=" + mChunkSize +
 				", mNumReplicas=" + mNumReplicas +
 				", mRecentCreationsFraction=" + mRecentCreationsFraction +
+				", mType=" + mType +
 				'}';
 	}
 }
