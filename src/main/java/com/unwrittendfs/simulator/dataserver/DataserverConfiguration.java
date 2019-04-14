@@ -12,8 +12,7 @@ public class DataserverConfiguration {
 	private Random mRand;
 	private int mMaxPageEraseCount;
 	private int dataServerId;
-	private int cacheSize;
-	private int chunkSize;
+	private Long cacheSize;
 
 	public int getPageSize() {
 		return mPageSize;
@@ -103,11 +102,11 @@ public class DataserverConfiguration {
 		this.dataServerId = dataServerId;
 	}
 
-	public int getCacheSize() {
+	public Long getCacheSize() {
 		return cacheSize;
 	}
 
-	public void setCacheSize(int cacheSize) {
+	public void setCacheSize(Long cacheSize) {
 		this.cacheSize = cacheSize;
 	}
 }

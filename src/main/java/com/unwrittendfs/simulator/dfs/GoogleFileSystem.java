@@ -1,19 +1,15 @@
 package com.unwrittendfs.simulator.dfs;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.unwrittendfs.simulator.dataserver.DataLocation;
 import com.unwrittendfs.simulator.dataserver.DataServer;
 import com.unwrittendfs.simulator.dataserver.DataserverConfiguration;
 
+import java.util.*;
+
 public class GoogleFileSystem extends DistributedFileSystem {
 	
 	private Map<Integer, Long> mDataServerLastCreateMap;
+
 	public GoogleFileSystem(ClusterConfiguration config, List<DataserverConfiguration> dataserverConfigs) {
 		super(config, dataserverConfigs);
 		mDataServerLastCreateMap = new HashMap<Integer, Long>();

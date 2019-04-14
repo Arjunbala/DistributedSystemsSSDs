@@ -7,20 +7,23 @@ public class Cache {
         private Long pageId;
         private Date lastTimeRead;
 
+
     }
-    private int cacheSize;
+    private Long cacheSize;
     private Map<Long, CacheObject> pageMap;
     private Queue<CacheObject> cacheQueue;
+    private Long maxCountOfPages;
 
-    public Cache(int cacheSize){
+    public Cache(Long cacheSize, int pageSize){
         this.cacheSize = cacheSize;
+        this.maxCountOfPages = cacheSize/pageSize;
         pageMap = new HashMap<>();
         cacheQueue = new PriorityQueue<>(Comparator.comparing(o -> o.lastTimeRead));
     }
 
     public void add(Long pageId){
         if(!pageMap.containsKey(pageId)){
-            if(pageMap.size() ==  cacheSize){
+            if(pageMap.size() ==  maxCountOfPages){
                 evict();
             }
             CacheObject cacheObject = new CacheObject();
@@ -55,11 +58,11 @@ public class Cache {
         }
     }
 
-    public int getCacheSize() {
+    public Long getCacheSize() {
         return cacheSize;
     }
 
-    public void setCacheSize(int cacheSize) {
+    public void setCacheSize(Long cacheSize) {
         this.cacheSize = cacheSize;
     }
 

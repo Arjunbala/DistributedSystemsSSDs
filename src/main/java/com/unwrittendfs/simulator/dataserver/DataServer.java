@@ -47,7 +47,7 @@ public class DataServer {
 		for(long i=0;i<config.getTotalNumPages();i++) {
 			mWriteMap.put(i, 0);
 		}
-		cacheLayer = new Cache(config.getCacheSize());
+		cacheLayer = new Cache(config.getCacheSize(), config.getPageSize());
 	}
 	
 	// TODO: Add caching logic
