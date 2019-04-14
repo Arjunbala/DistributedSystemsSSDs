@@ -16,10 +16,10 @@ public class DistributedFileSystem {
 
 	private static DistributedFileSystem sInstance = null;
 	private MetadataServer mMetadataServer; // Holds instance of Metadata server
-	private ClusterConfiguration mClusterConfiguration; // Holds instance of cluster configuration
-	private Map<Integer, DataServer> mDataServerMap; // List of available data-servers
+	protected ClusterConfiguration mClusterConfiguration; // Holds instance of cluster configuration
+	protected Map<Integer, DataServer> mDataServerMap; // List of available data-servers
 
-	private DistributedFileSystem(ClusterConfiguration config, List<DataserverConfiguration> dataserverConfigurations) {
+	protected DistributedFileSystem(ClusterConfiguration config, List<DataserverConfiguration> dataserverConfigurations) {
 		mClusterConfiguration = config;
 		mMetadataServer = new MetadataServer();
 		mDataServerMap = new HashMap<Integer, DataServer>();
