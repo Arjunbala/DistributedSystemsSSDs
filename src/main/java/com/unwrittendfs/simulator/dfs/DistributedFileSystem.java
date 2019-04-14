@@ -1,5 +1,6 @@
 package com.unwrittendfs.simulator.dfs;
 
+import com.unwrittendfs.simulator.Simulation;
 import com.unwrittendfs.simulator.dataserver.DataLocation;
 import com.unwrittendfs.simulator.dataserver.DataServer;
 import com.unwrittendfs.simulator.dataserver.DataserverConfiguration;
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 public class DistributedFileSystem {
 
@@ -16,16 +18,17 @@ public class DistributedFileSystem {
 	private MetadataServer mMetadataServer; // Holds instance of Metadata server
 	protected ClusterConfiguration mClusterConfiguration; // Holds instance of cluster configuration
 	protected Map<Integer, DataServer> mDataServerMap; // List of available data-servers
+	private static Logger sLog; // Instance of logger
 
 	protected DistributedFileSystem(ClusterConfiguration config, List<DataserverConfiguration> dataserverConfigurations) {
 		mClusterConfiguration = config;
 		mMetadataServer = new MetadataServer();
 		mDataServerMap = new HashMap<Integer, DataServer>();
-
-
 		for(DataserverConfiguration server : dataserverConfigurations){
 			mDataServerMap.put(server.getDataServerId(), new DataServer(server));
 		}
+		sLog = Logger.getLogger(DistributedFileSystem.class.getSimpleName());
+		sLog.setLevel(Simulation.getLogLevel());
 	}
 
 	public static DistributedFileSystem getInstance() {
@@ -45,6 +48,7 @@ public class DistributedFileSystem {
 	}
 
 	public long read(int fd, String buffer, long count, int client_id) {
+		sLog.info("Here");
 		// Get the list of chunks from MDS
 		List<Integer> chunks = mMetadataServer.getChunksForFile(fd);
 		if (chunks == null) {

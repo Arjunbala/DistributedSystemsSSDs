@@ -14,12 +14,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Simulation {
 	
 	private static int sSimulatorTime = 0;
 	private static JSONParser jsonParser = new JSONParser();
 	private static DistributedFileSystem mDfs;
+	private static final Level sLogLevel = Level.INFO;
 	
 	public static void main(String args[]) throws IOException {
 
@@ -36,14 +39,20 @@ public class Simulation {
 		System.out.println(fd);
 		String buffer = null;
 		long written = mDfs.write(fd, buffer, 2048, 1);
+		sSimulatorTime += 1;
 		System.out.println(written);
 		long offset = mDfs.seek(fd, 0, 1);
+		sSimulatorTime += 1;
 		long read = mDfs.read(fd, buffer, 1024, 1);
+		sSimulatorTime += 1;
 		System.out.println(read);
 		read = mDfs.read(fd, buffer, 1024, 1);
+		sSimulatorTime += 1;
 		System.out.println(read);
 		mDfs.delete(fd);
+		sSimulatorTime += 1;
 		read = mDfs.read(fd, buffer, 1024, 1);
+		sSimulatorTime += 1;
 		System.out.println(read);
 		return;
 	}
@@ -78,5 +87,9 @@ public class Simulation {
 	
 	public static int getSimulatorTime() {
 		return sSimulatorTime;
+	}
+	
+	public static Level getLogLevel() {
+		return sLogLevel;
 	}
 }
