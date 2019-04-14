@@ -13,7 +13,6 @@ public class GoogleFileSystem extends DistributedFileSystem {
 	private Map<Integer, Long> mDataServerLastCreateMap;
 	private static Logger sLog; // Instance of logger
 
-	private static Logger sLog;
 
 	public GoogleFileSystem(ClusterConfiguration config, List<DataserverConfiguration> dataserverConfigs) {
 		super(config, dataserverConfigs);
