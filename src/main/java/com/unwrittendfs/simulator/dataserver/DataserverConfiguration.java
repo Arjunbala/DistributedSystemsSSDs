@@ -13,6 +13,9 @@ public class DataserverConfiguration {
 	private int mMaxPageEraseCount;
 	private int dataServerId;
 	private Long cacheSize;
+
+	private Double mGCThreshold;
+
 	private double mDisturbanceCyclesExponent;
 	private double mDisturbanceReadsExponent;
 	private double mDataScrubbingThreshold;
@@ -135,6 +138,14 @@ public class DataserverConfiguration {
 
 	public void setCacheSize(Long cacheSize) {
 		this.cacheSize = cacheSize;
+	}
+
+	public Double getmGCThreshold() {
+		return mGCThreshold;
+	}
+
+	public void setmGCThreshold(Double mGCThreshold) {
+		this.mGCThreshold = mGCThreshold;
 	}
 
 	@Override

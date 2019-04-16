@@ -7,10 +7,12 @@
     "mRandomSeed" : "4",
     "mMaxPageEraseCount": "5",
     "dataServerId" : "1",
+    "mGCThreshold" : "0.75",
     "cacheSize" : "0",
     "mDisturbanceCyclesExponent" : "3",
     "mDisturbanceReadsExponent" : "1",
     "mDataScrubbingThreshold"  : "0.1"
+
   },
   {
     "mPageSize" : "128",
@@ -20,10 +22,14 @@
     "mRandomSeed" : "4",
     "mMaxPageEraseCount": "5",
     "dataServerId" : "2",
+
+    "mGCThreshold" : "0.75",
+
     "cacheSize" : "0",
     "mDisturbanceCyclesExponent" : "3",
     "mDisturbanceReadsExponent" : "1",
     "mDataScrubbingThreshold"  : "0.1"
+
   },
   {
     "mPageSize" : "128",
@@ -33,9 +39,14 @@
     "mRandomSeed" : "4",
     "mMaxPageEraseCount": "5",
     "dataServerId" : "3",
+
+
+    "mGCThreshold" : "0.75",
+
     "cacheSize" : "0",
     "mDisturbanceCyclesExponent" : "3",
     "mDisturbanceReadsExponent" : "1",
     "mDataScrubbingThreshold"  : "0.1"
+
   }
 ]

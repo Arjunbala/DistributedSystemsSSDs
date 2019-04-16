@@ -5,6 +5,7 @@ import com.unwrittendfs.simulator.Simulation;
 import java.util.*;
 import java.util.logging.Logger;
 
+// TODO :Add statistic for Cache
 public class Cache {
 
     private class CacheObject{
@@ -33,11 +34,13 @@ public class Cache {
                 evict();
             }
 //            sLog.info("Page Added in the cache: " + pageId);
-            CacheObject cacheObject = new CacheObject();
-            cacheObject.lastTimeRead = Simulation.getSimulatorTime();
-            cacheObject.pageId = pageId;
-            cacheQueue.add(cacheObject);
-            pageMap.put(pageId, cacheObject);
+            if(pageMap.size() < maxCountOfPages) {
+                CacheObject cacheObject = new CacheObject();
+                cacheObject.lastTimeRead = Simulation.getSimulatorTime();
+                cacheObject.pageId = pageId;
+                cacheQueue.add(cacheObject);
+                pageMap.put(pageId, cacheObject);
+            }
         }
     }
 
