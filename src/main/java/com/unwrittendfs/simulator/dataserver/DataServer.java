@@ -136,6 +136,7 @@ public class DataServer {
 		// If invalid page count goes above threshold, trigger GC
 		if(Double.compare(getCurrentInvalidPageFraction(), getConfig().getmGCThreshold()) > 0){
 			// Trigger GC;
+			System.out.println("Triggering GC");
 			triggerGC();
 		}
 		return (pagesAllocated.size())
@@ -199,6 +200,7 @@ public class DataServer {
 				cacheLayer.invalidateCache(page);
 			}
 		}
+		triggerGC();
 		return true;
 	}
 
@@ -231,6 +233,7 @@ public class DataServer {
 		}
 		System.out.println("DS" + Integer.toString(mConfig.getDataServerId()) + " Valid: " + Integer.toString(valid)
 				+ " Invalid: " + Integer.toString(invalid) + " Free: " + Integer.toString(free));
+		System.out.println(mEraseMap.toString());
 	}
 
 	private void increment(Map<Long, Integer> map, long page) {

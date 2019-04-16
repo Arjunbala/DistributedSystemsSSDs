@@ -16,10 +16,12 @@ public class TestWorkload implements IClientWorkload {
 		int fd = mDfs.create("abc", 1);
 		System.out.println(fd);
 		String buffer = null;
-		long written = mDfs.write(fd, buffer, 2048, 1);
+		long written = mDfs.write(fd, buffer, 2048*1024, 1);
 		Simulation.incrementSimulatorTime();
 		System.out.println(written);
 		long offset = mDfs.seek(fd, 0, 1);
+		Simulation.incrementSimulatorTime();
+		mDfs.write(fd, buffer, 2048*1024, 1);
 		Simulation.incrementSimulatorTime();
 		long read = mDfs.read(fd, buffer, 1024, 1);
 		Simulation.incrementSimulatorTime();

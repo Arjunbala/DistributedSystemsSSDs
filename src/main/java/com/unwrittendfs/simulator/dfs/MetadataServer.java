@@ -193,7 +193,7 @@ public class MetadataServer {
                     + " has not opened file during add chunk");
             return -1;
         }
-        sLog.info("Adding chunk to file with fd: " + Integer.toString(fd));
+        sLog.info("Adding chunk to file with fd: " + Integer.toString(fd) + " chunkID: " + Integer.toString(sChunkCount));
         List<Integer> chunksForFile = mFdToChunkMapping.get(fd);
         if (chunksForFile == null) {
             // File is getting data for first time
@@ -229,7 +229,7 @@ public class MetadataServer {
             return false;
         }
         List<Integer> chunks = mFdToChunkMapping.get(fd);
-        chunks.remove(chunk_id);
+        chunks.remove(new Integer(chunk_id));
         mFdToChunkMapping.put(fd, chunks);
         mChunkIdToDataServerMapping.remove(chunk_id);
         return true;
