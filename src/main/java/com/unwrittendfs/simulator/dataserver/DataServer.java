@@ -70,9 +70,8 @@ public class DataServer {
 				bytesRead += mConfig.getPageSize();
 			} else {
 				if (mPageList.get(page) == PageStatus.VALID) {
-					// TODO: Implement retry logic based on an probabilistic
-					// error function
 					int retries = 0;
+					// model error on read
 					if(!canReadPageWithoutError(page)) {
 						retries++;
 						if(retries == mConfig.getMaxReadRetries()) {
@@ -93,9 +92,14 @@ public class DataServer {
 			}
 		}
 		if(!pagesToMigrate.isEmpty()) {
-			// TODO: Migrate blocks associated with above pages
+			handleDataScrubbing(chunk_id);
 		}
 		return bytesRead;
+	}
+	
+	private void handleDataScrubbing(int chunk_id) {
+		// In terms of wear, data scrubbing is equivalent of a write to this chunk
+		write(chunk_id, mChunkToPageMapping.get(chunk_id).size()*mConfig.getmPageSize());
 	}
 	
 	private boolean canReadPageWithoutError(long page) {
@@ -111,7 +115,6 @@ public class DataServer {
 		return true;
 	}
 
-	// TODO: Do GC and then write if enough space is not available
 	public long write(int chunk_id, long chunk_size) {
 		int numPagesToAllocate = (int) (chunk_size / mConfig.getPageSize());
 
