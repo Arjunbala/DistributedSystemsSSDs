@@ -1,5 +1,6 @@
 package com.unwrittendfs.simulator;
 
+import com.unwrittendfs.simulator.client.workload.TestWorkload;
 import com.unwrittendfs.simulator.client.workload.Workload;
 import com.unwrittendfs.simulator.dataserver.DataserverConfiguration;
 import com.unwrittendfs.simulator.dfs.ClusterConfiguration;
@@ -32,27 +33,9 @@ public class Simulation {
 		List<DataserverConfiguration> dataserverConfigurations = ConfigUtils.getDataServers
 				(simulation.getFileFromResources("DataServerConfiguration.json"));
 		System.out.println(dataserverConfigurations);
-		//List<Workload> workloads = simulation.fileCreationWorkLoad(10);
 		mDfs = DFSFactory.getInstance(clusterConfiguration.getmType(), clusterConfiguration, dataserverConfigurations);
-		int fd = mDfs.create("abc", 1);
-		System.out.println(fd);
-		String buffer = null;
-		long written = mDfs.write(fd, buffer, 2048, 1);
-		sSimulatorTime += 1;
-		System.out.println(written);
-		long offset = mDfs.seek(fd, 0, 1);
-		sSimulatorTime += 1;
-		long read = mDfs.read(fd, buffer, 1024, 1);
-		sSimulatorTime += 1;
-		System.out.println(read);
-		read = mDfs.read(fd, buffer, 1024, 1);
-		sSimulatorTime += 1;
-		System.out.println(read);
-		mDfs.delete(fd);
-		sSimulatorTime += 1;
-		read = mDfs.read(fd, buffer, 1024, 1);
-		sSimulatorTime += 1;
-		System.out.println(read);
+		// TODO: Execute workload based on a workload factory
+		new TestWorkload(mDfs).execute();
 		mDfs.printStats();
 		return;
 	}
@@ -87,6 +70,14 @@ public class Simulation {
 	
 	public static Long getSimulatorTime() {
 		return sSimulatorTime;
+	}
+	
+	public static void updateSimulationTime(long time) {
+		sSimulatorTime = time;
+	}
+	
+	public static void incrementSimulatorTime() {
+		sSimulatorTime++;
 	}
 	
 	public static Level getLogLevel() {
