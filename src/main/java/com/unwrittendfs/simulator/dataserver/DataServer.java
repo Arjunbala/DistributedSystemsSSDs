@@ -118,6 +118,7 @@ public class DataServer {
 		// Greedily select the pages according to the PE ratio
 		List<Long> pagesAllocated = greedyPageAllocationPolicy(numPagesToAllocate);
 		List<Long> oldPagesOfChunk = mChunkToPageMapping.get(chunk_id);
+		// old chunks will exist if chunk is being overwritten
 		if (oldPagesOfChunk != null) {
 			// Means that chunk is being overwritten. Mark old pages as invalid
 			for (Long page : oldPagesOfChunk) {
@@ -129,7 +130,8 @@ public class DataServer {
 		}
 
 		mChunkToPageMapping.put(chunk_id, pagesAllocated);
-		if(getCurrentFreeMemoryCount() < getConfig().getmGCThreshold()){
+		// If invalid page count goes above threshold, trigger GC
+		if(Double.compare(getCurrentInvalidPageFraction(), getConfig().getmGCThreshold()) > 0){
 			// Trigger GC;
 			triggerGC();
 		}
@@ -142,72 +144,18 @@ public class DataServer {
 			if(mPageList.get(pgNo).equals(PageStatus.INVALID)){
 				mPageList.put(pgNo, PageStatus.FREE);
 				increment(mEraseMap,pgNo);
+				mReadMap.put(pgNo, 0);
 			}
 		}
 	}
 
-//	private List<Long> allocateBlocks(int numBlocks) {
-//		long start = 0;
-//		List<Long> pages = new ArrayList<Long>();
-//		if (numBlocks == 0) {
-//			return pages; // Empty list
-//		}
-//		long end = mConfig.getTotalNumPages();
-//		while (start < end) {
-//			// Look from [start,start + pages_per_block) and check if all are
-//			// free
-//			boolean all_pages_free = true;
-//			for (long i = start; i < start + mConfig.getPagesPerBlock(); i++) {
-//				if (mPageList.get(i) != PageStatus.FREE) {
-//					all_pages_free = false;
-//					break;
-//				}
-//			}
-//			if (all_pages_free) {
-//				for (long i = start; i < start
-//						+ mConfig.getPagesPerBlock(); i++) {
-//					pages.add(i);
-//					mPageList.put(i, PageStatus.VALID);
-//					increment(mWriteMap, i);
-//				}
-//				numBlocks--;
-//				if (numBlocks == 0) {
-//					break;
-//				}
-//			}
-//			start += mConfig.getPagesPerBlock();
-//		}
-//		return pages;
-//	}
-
-//	private List<Long> allocatePages(int numPages) {
-//		List<Long> pages = new ArrayList<Long>();
-//		if (numPages == 0) {
-//			return pages; // empty list
-//		}
-//		long start = 0;
-//		long end = mConfig.getTotalNumPages();
-//
-//		while (start < end) {
-//			// Allocate any page that is found to be free
-//			if (mPageList.get(start) == PageStatus.FREE) {
-//				pages.add(start);
-//				mPageList.put(start, PageStatus.VALID); // Mark page as in use
-//				increment(mWriteMap, start);
-//				numPages--;
-//				if (numPages == 0) {
-//					break;
-//				}
-//			}
-//			start++;
-//		}
-//		return pages;
-//	}
-
 	// Greedy Allocation policy while writing
-	// TODO: Add checks if no. of blocks are allocated are ot sufficient
+	// TODO: Add checks if no. of blocks are allocated are sufficient
 	private List<Long> greedyPageAllocationPolicy(int numPages){
+		// Try to find out numPages which are least written to
 		List<Long> allocatedPages = new ArrayList<>();
+		
+		// Sort in descending order of writes
 		Queue<PagePEWrites> queue = new PriorityQueue<>(new Comparator<PagePEWrites>() {
 			@Override
 			public int compare(PagePEWrites o1, PagePEWrites o2) {
@@ -216,16 +164,12 @@ public class DataServer {
 		});
 		for(long pgNo = 0; pgNo < mConfig.getTotalNumPages();pgNo++){
 			if(mPageList.get(pgNo).equals(PageStatus.FREE)){
-				if(queue.isEmpty()){
+				if(queue.size() < numPages){
 					queue.add(new PagePEWrites(pgNo, mWriteMap.get(pgNo)));
 				} else {
-					if(queue.size() < numPages){
+					if(queue.peek().write > mWriteMap.get(pgNo)){
+						queue.poll();
 						queue.add(new PagePEWrites(pgNo, mWriteMap.get(pgNo)));
-					} else {
-						if(queue.peek().write > mWriteMap.get(pgNo)){
-							queue.poll();
-							queue.add(new PagePEWrites(pgNo, mWriteMap.get(pgNo)));
-						}
 					}
 				}
 			}
@@ -291,8 +235,8 @@ public class DataServer {
 		map.put(page, old_value + 1);
 	}
 
-	private double getCurrentFreeMemoryCount(){
-		return  (double) mPageList.keySet().stream().mapToLong(i -> i).filter(i -> mPageList.get(i).equals(PageStatus.FREE)).count()/(double) mPageList.size();
+	private double getCurrentInvalidPageFraction(){
+		return  (double) mPageList.keySet().stream().mapToLong(i -> i).filter(i -> mPageList.get(i).equals(PageStatus.INVALID)).count()/(double) mPageList.size();
 	}
 
 	class PagePEWrites {
