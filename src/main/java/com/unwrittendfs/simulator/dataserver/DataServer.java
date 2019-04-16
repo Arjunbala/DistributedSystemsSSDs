@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 public class DataServer {
 
@@ -25,6 +26,7 @@ public class DataServer {
 
 	// Configuration Structures
 	private DataserverConfiguration mConfig;
+	private Random mRandomGenerator;
 
 	public DataServer(DataserverConfiguration config) {
 		mConfig = config;
@@ -46,6 +48,7 @@ public class DataServer {
 			mWriteMap.put(i, 0);
 		}
 		cacheLayer = new Cache(config.getCacheSize(), config.getPageSize());
+		mRandomGenerator = new Random(mConfig.getmRandomSeed());
 	}
 
 	public long read(int chunk_id) {
@@ -55,22 +58,53 @@ public class DataServer {
 			// Chunk does not exist in SSD
 			return -1;
 		}
+		List<Long> pagesToMigrate = new ArrayList<>();
 		long bytesRead = 0;
 		for (Long page : pagesToRead) {
 			if (cacheLayer.read(page)) {
+				// Check if page is in cache. If not in cache, read from disk
 				bytesRead += mConfig.getPageSize();
 			} else {
 				if (mPageList.get(page) == PageStatus.VALID) {
 					// TODO: Implement retry logic based on an probabilistic
 					// error function
+					int retries = 0;
+					if(!canReadPageWithoutError(page)) {
+						retries++;
+						if(retries == mConfig.getMaxReadRetries()) {
+							increment(mReadMap, page);
+							return -1; // read not successful, unrecoverable error
+						}
+					}
+					System.out.println("Number retries: " + Integer.toString(retries));
 					bytesRead += mConfig.getPageSize();
 					increment(mReadMap, page);
 					cacheLayer.add(page);
+					if(retries > mConfig.getMaxReadRetries()*mConfig.getmDataScrubbingThreshold()) {
+						pagesToMigrate.add(page);
+					}
+				} else {
+					return -1;
 				}
 			}
 		}
-
+		if(!pagesToMigrate.isEmpty()) {
+			// TODO: Migrate blocks associated with above pages
+		}
 		return bytesRead;
+	}
+	
+	private boolean canReadPageWithoutError(long page) {
+		double probability_error = (Math.pow((mReadMap.get(page)/mConfig.getMaxReadRetries()), 
+				mConfig.getmDisturbanceReadsExponent()) + 
+				Math.pow((mEraseMap.get(page)/mConfig.getMaxEraseCount()), 
+						mConfig.getmDisturbanceCyclesExponent()))/2;
+		System.out.println(probability_error);
+		if(Double.compare(probability_error, 1.0) == 0 
+				|| mRandomGenerator.nextDouble() <= probability_error) {
+			return false;
+		}
+		return true;
 	}
 
 	// TODO: Do GC and then write if enough space is not available

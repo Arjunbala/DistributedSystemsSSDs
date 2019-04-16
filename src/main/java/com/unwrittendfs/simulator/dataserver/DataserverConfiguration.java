@@ -13,6 +13,33 @@ public class DataserverConfiguration {
 	private int mMaxPageEraseCount;
 	private int dataServerId;
 	private Long cacheSize;
+	private double mDisturbanceCyclesExponent;
+	private double mDisturbanceReadsExponent;
+	private double mDataScrubbingThreshold;
+
+	public double getmDataScrubbingThreshold() {
+		return mDataScrubbingThreshold;
+	}
+
+	public void setmDataScrubbingThreshold(double mDataScrubbingThreshold) {
+		this.mDataScrubbingThreshold = mDataScrubbingThreshold;
+	}
+
+	public double getmDisturbanceCyclesExponent() {
+		return mDisturbanceCyclesExponent;
+	}
+
+	public void setmDisturbanceCyclesExponent(double mDisturbanceCyclesExponent) {
+		this.mDisturbanceCyclesExponent = mDisturbanceCyclesExponent;
+	}
+
+	public double getmDisturbanceReadsExponent() {
+		return mDisturbanceReadsExponent;
+	}
+
+	public void setmDisturbanceReadsExponent(double mDisturbanceReadsExponent) {
+		this.mDisturbanceReadsExponent = mDisturbanceReadsExponent;
+	}
 
 	public int getPageSize() {
 		return mPageSize;
