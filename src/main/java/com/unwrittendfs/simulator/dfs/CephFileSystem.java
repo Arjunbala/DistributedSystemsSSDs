@@ -56,27 +56,36 @@ public class CephFileSystem extends DistributedFileSystem {
     protected List<DataLocation> getLocationsForNewChunk() {
         // Get the current set of data servers and it's disc usage
         for (Integer dataServerId : mDataServerMap.keySet()) {
-            minDiscUsageQueue.add(new DataServerTimeStamp(mDataServerMap.get(dataServerId), mDataServerMap.get(dataServerId).getDiskUsage()));
+            if(mDataServerMap.get(dataServerId).getDiskUsage() <
+                    mDataServerMap.get(dataServerId).getConfig().getTotalNumPages() *
+                            mDataServerMap.get(dataServerId).getConfig().getPageSize()) {
+                minDiscUsageQueue.add(new DataServerTimeStamp(mDataServerMap.get(dataServerId), mDataServerMap.get(dataServerId).getDiskUsage()));
+            }
+        }
+        int replicas = mClusterConfiguration.getNumberReplicas();
+        if(minDiscUsageQueue.size() < replicas){
+            throw new RuntimeException("Insufficient memory. Aborting!!!");
         }
         List<DataLocation> dataLocations = new ArrayList<>();
-        int replicas = mClusterConfiguration.getNumberReplicas();
+
         boolean isPrimaryAssigned = false;
         DataServerTimeStamp primaryDataServerTimeStamp = null;
 
         // TODO: what is the disc usage is beyond a threshold
         for (int i = 0; i < replicas; i++) {
             // Assign primary with the dataServer with least usage
-            if (!isPrimaryAssigned) {
-                primaryDataServerTimeStamp = minDiscUsageQueue.remove();
-                dataLocations.add(new DataLocation(primaryDataServerTimeStamp.dataServer.getConfig().getDataServerId(),
-                        DataLocation.DataRole.PRIMARY_REPLICA));
-                isPrimaryAssigned = true;
-            } else {
-                // Assign Replica with the dataServers with next least usage
-                primaryDataServerTimeStamp = minDiscUsageQueue.remove();
-                dataLocations.add(new DataLocation(primaryDataServerTimeStamp.dataServer.getConfig().getDataServerId(),
-                        DataLocation.DataRole.SECONDARY_REPLICA));
-            }
+                if (!isPrimaryAssigned) {
+                    primaryDataServerTimeStamp = minDiscUsageQueue.remove();
+                    dataLocations.add(new DataLocation(primaryDataServerTimeStamp.dataServer.getConfig().getDataServerId(),
+                            DataLocation.DataRole.PRIMARY_REPLICA));
+                    isPrimaryAssigned = true;
+                } else {
+                    // Assign Replica with the dataServers with next least usage
+                    primaryDataServerTimeStamp = minDiscUsageQueue.remove();
+                    dataLocations.add(new DataLocation(primaryDataServerTimeStamp.dataServer.getConfig().getDataServerId(),
+                            DataLocation.DataRole.SECONDARY_REPLICA));
+                }
+
         }
         sLog.info("Disc selected for write in Ceph FS :" + dataLocations);
         minDiscUsageQueue.clear();
