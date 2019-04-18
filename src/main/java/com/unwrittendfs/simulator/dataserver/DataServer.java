@@ -137,7 +137,7 @@ public class DataServer {
 
         mChunkToPageMapping.put(chunk_id, pagesAllocated);
         // If invalid page count goes above threshold, trigger GC
-        if (Double.compare(getCurrentInvalidPageFraction(), getConfig().getmGCThreshold()) > 0) {
+        if (Double.compare(getCurrentFreePageFraction(), getConfig().getmGCThreshold()) < 0) {
             // Trigger GC;
             System.out.println("Triggering GC");
             triggerGC();
@@ -146,18 +146,39 @@ public class DataServer {
                 * mConfig.getPageSize();
     }
 
+    // Make it block level GC
     private void triggerGC() {
-        for (long pgNo = 0; pgNo < mConfig.getTotalNumPages(); pgNo++) {
-            if (mPageList.get(pgNo).equals(PageStatus.INVALID)) {
-                mPageList.put(pgNo, PageStatus.FREE);
-                increment(mEraseMap, pgNo);
-                mReadMap.put(pgNo, 0);
+//        for (long pgNo = 0; pgNo < mConfig.getTotalNumPages(); pgNo++) {
+//            if (mPageList.get(pgNo).equals(PageStatus.INVALID)) {
+//                mPageList.put(pgNo, PageStatus.FREE);
+//                increment(mEraseMap, pgNo);
+//                mReadMap.put(pgNo, 0);
+//            }
+//        }
+
+        // Check for a non-dirty block. A block with no valid data.
+        boolean isDirtyBlock = false;
+        for (long pgNo = 0; pgNo < mConfig.getTotalNumPages(); pgNo = pgNo + mConfig.getmPagesPerBlock()) {
+            for (long start = pgNo; start < pgNo + mConfig.getmPagesPerBlock(); start++) {
+                if (mPageList.get(start).equals(PageStatus.VALID)) {
+                    isDirtyBlock = true;
+                }
+            }
+            // If the block has no valid data then clean the block
+            if (!isDirtyBlock) {
+                for (long start = pgNo; start < pgNo + mConfig.getmPagesPerBlock(); start++) {
+                    if (mPageList.get(start).equals(PageStatus.INVALID)) {
+                        mPageList.put(start, PageStatus.FREE);
+                        increment(mEraseMap, start);
+                        mReadMap.put(start, 0);
+                    }
+                }
             }
         }
+
     }
 
     // Greedy Allocation policy while writing
-    // TODO: Add checks if no. of blocks are allocated are sufficient
     private List<Long> greedyPageAllocationPolicy(int numPages) {
         if (numPages == 0) {
             return new ArrayList<>();
@@ -210,6 +231,7 @@ public class DataServer {
                 cacheLayer.invalidateCache(page);
             }
         }
+        // TODO : Are you sure don't want to trigger GC when free memeory goes below a threshold
         triggerGC();
         return true;
     }
@@ -250,8 +272,12 @@ public class DataServer {
         map.put(page, old_value + 1);
     }
 
-    private double getCurrentInvalidPageFraction() {
-        return (double) mPageList.keySet().stream().mapToLong(i -> i).filter(i -> mPageList.get(i).equals(PageStatus.INVALID)).count() / (double) mPageList.size();
+    private double getCurrentFreePageFraction() {
+        return (double) mPageList.keySet()
+                .stream()
+                .mapToLong(i -> i)
+                .filter(i -> mPageList.get(i).equals(PageStatus.FREE))
+                .count() / (double) mPageList.size();
     }
 
     class PagePEWrites {

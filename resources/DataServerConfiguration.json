@@ -7,7 +7,7 @@
     "mRandomSeed" : "4",
     "mMaxPageEraseCount": "5",
     "dataServerId" : "1",
-    "mGCThreshold" : "0.75",
+    "mGCThreshold" : "0.25",
     "cacheSize" : "0",
     "mDisturbanceCyclesExponent" : "3",
     "mDisturbanceReadsExponent" : "1",
@@ -23,7 +23,7 @@
     "mMaxPageEraseCount": "5",
     "dataServerId" : "2",
 
-    "mGCThreshold" : "0.75",
+    "mGCThreshold" : "0.25",
 
     "cacheSize" : "0",
     "mDisturbanceCyclesExponent" : "3",
@@ -41,7 +41,7 @@
     "dataServerId" : "3",
 
 
-    "mGCThreshold" : "0.75",
+    "mGCThreshold" : "0.25",
 
     "cacheSize" : "0",
     "mDisturbanceCyclesExponent" : "3",
