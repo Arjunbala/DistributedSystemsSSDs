@@ -28,6 +28,7 @@ public class DistributedFileSystem {
 		for(DataserverConfiguration server : dataserverConfigurations){
 			mDataServerMap.put(server.getDataServerId(), new DataServer(server));
 		}
+		sInstance = this;
 		sLog = Logger.getLogger(DistributedFileSystem.class.getSimpleName());
 		sLog.setLevel(Simulation.getLogLevel());
 	}

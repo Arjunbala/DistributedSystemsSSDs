@@ -5,6 +5,7 @@ import com.unwrittendfs.simulator.dataserver.DataLocation;
 import com.unwrittendfs.simulator.dataserver.DataServer;
 import com.unwrittendfs.simulator.dataserver.DataserverConfiguration;
 import com.unwrittendfs.simulator.dfs.cache.Cache;
+import com.unwrittendfs.simulator.exceptions.GenericException;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -64,7 +65,7 @@ public class CephFileSystem extends DistributedFileSystem {
         }
         int replicas = mClusterConfiguration.getNumberReplicas();
         if(minDiscUsageQueue.size() < replicas){
-            throw new RuntimeException("Insufficient memory to write more. Aborting!!!");
+            throw new GenericException("Insufficient memory to write more. Aborting!!!", DistributedFileSystem.getInstance());
         }
         List<DataLocation> dataLocations = new ArrayList<>();
 

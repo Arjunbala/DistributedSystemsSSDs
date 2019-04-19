@@ -1,6 +1,9 @@
 package com.unwrittendfs.simulator.dataserver;
 
+import com.unwrittendfs.simulator.dfs.DistributedFileSystem;
 import com.unwrittendfs.simulator.dfs.cache.Cache;
+import com.unwrittendfs.simulator.exceptions.GenericException;
+import com.unwrittendfs.simulator.exceptions.PageCorruptedException;
 
 
 import java.util.*;
@@ -112,8 +115,9 @@ public class DataServer {
         System.out.println("Probability error of reading: " + probability_error);
         if (Double.compare(probability_error, 1.0) == 0
                 || mRandomGenerator.nextDouble() <= probability_error) {
-            throw new RuntimeException("The pageId: " + page + " in DS id : " + getConfig().getDataServerId() + " is corrupted and can't be read any longer");
-//			return false;
+            throw new PageCorruptedException("The pageId: " + page + " in DS id : "
+                    + getConfig().getDataServerId() + " is corrupted and can't be read any longer",
+                    DistributedFileSystem.getInstance());
         }
         return true;
     }
@@ -207,7 +211,7 @@ public class DataServer {
             }
         }
         if (queue.size() != numPages) {
-            throw new RuntimeException("Required space is not available for allocation");
+            throw new GenericException("Required space is not available for allocation", DistributedFileSystem.getInstance());
         }
         for (PagePEWrites peWrites : queue) {
             allocatedPages.add(peWrites.pageNo);

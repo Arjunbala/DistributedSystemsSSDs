@@ -8,7 +8,7 @@ import com.unwrittendfs.simulator.utils.ConfigUtils;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class DownPourSGD implements IClientWorkload {
+public class DownpourSGD implements IClientWorkload {
 
 
     private Long trainingDataSize;
@@ -25,9 +25,9 @@ public class DownPourSGD implements IClientWorkload {
     @JsonIgnore
     private DistributedFileSystem mDfs;
 
-    public DownPourSGD(DistributedFileSystem mDfs) {
+    public DownpourSGD(DistributedFileSystem mDfs) {
         this.mDfs = mDfs;
-        DownPourSGD sgd = ConfigUtils.getSGDWorkloadConfig();
+        DownpourSGD sgd = ConfigUtils.getSGDWorkloadConfig();
         this.trainingDataSize = sgd.trainingDataSize;
         this.sampleSize = sgd.sampleSize;
         this.clientCount = sgd.clientCount;
@@ -37,7 +37,7 @@ public class DownPourSGD implements IClientWorkload {
         this.samplePerClient = this.sampleCount / clientCount;
     }
 
-    public DownPourSGD() {
+    public DownpourSGD() {
     }
 
     class ClientRange {
