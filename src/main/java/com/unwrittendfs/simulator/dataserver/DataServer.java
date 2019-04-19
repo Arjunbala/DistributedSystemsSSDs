@@ -42,20 +42,20 @@ public class DataServer {
 
     public DataServer(DataserverConfiguration config) {
         mConfig = config;
-        mChunkToPageMapping = new HashMap<Integer, List<Long>>();
-        mPageList = new HashMap<Long, PageStatus>();
+        mChunkToPageMapping = new HashMap<>();
+        mPageList = new HashMap<>();
         for (long i = 0; i < config.getTotalNumPages(); i++) {
             mPageList.put(i, PageStatus.FREE);
         }
-        mEraseMap = new HashMap<Long, Integer>();
+        mEraseMap = new HashMap<>();
         for (long i = 0; i < config.getTotalNumPages(); i++) {
             mEraseMap.put(i, 0);
         }
-        mReadMap = new HashMap<Long, Integer>();
+        mReadMap = new HashMap<>();
         for (long i = 0; i < config.getTotalNumPages(); i++) {
             mReadMap.put(i, 0);
         }
-        mWriteMap = new HashMap<Long, Integer>();
+        mWriteMap = new HashMap<>();
         for (long i = 0; i < config.getTotalNumPages(); i++) {
             mWriteMap.put(i, 0);
         }
@@ -89,7 +89,7 @@ public class DataServer {
                             return -1; // read not successful, unrecoverable error
                         }
                     }
-                    System.out.println("Number retries: " + Integer.toString(retries));
+                    System.out.println("Number retries: " + retries);
                     bytesRead += mConfig.getPageSize();
                     increment(mReadMap, page);
                     cacheLayer.add(page);
@@ -187,12 +187,7 @@ public class DataServer {
 
         // Sort in descending order of writes. The reason we are sorting in descending order because we want to fix our
         // heap size. If the maxWrite is greater in the heap is greater than the one during the iteration, we swap the pages.
-        Queue<PagePEWrites> queue = new PriorityQueue<>(new Comparator<PagePEWrites>() {
-            @Override
-            public int compare(PagePEWrites o1, PagePEWrites o2) {
-                return o2.write - o1.write;
-            }
-        });
+        Queue<PagePEWrites> queue = new PriorityQueue<>((o1, o2) -> o2.write - o1.write);
         for (long pgNo = 0; pgNo < mConfig.getTotalNumPages(); pgNo++) {
             if (mPageList.get(pgNo).equals(PageStatus.FREE)) {
                 if (queue.size() < numPages) {
@@ -261,8 +256,8 @@ public class DataServer {
                 valid++;
             }
         }
-        System.out.println("DS" + Integer.toString(mConfig.getDataServerId()) + " Valid: " + Integer.toString(valid)
-                + " Invalid: " + Integer.toString(invalid) + " Free: " + Integer.toString(free));
+        System.out.println("DS" + mConfig.getDataServerId() + " Valid: " + valid
+                + " Invalid: " + invalid + " Free: " + free);
         System.out.println(mEraseMap.toString());
     }
 
