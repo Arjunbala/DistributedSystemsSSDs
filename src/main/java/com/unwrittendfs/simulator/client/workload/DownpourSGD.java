@@ -3,6 +3,7 @@ package com.unwrittendfs.simulator.client.workload;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.unwrittendfs.simulator.Simulation;
 import com.unwrittendfs.simulator.dfs.DistributedFileSystem;
+import com.unwrittendfs.simulator.exceptions.GenericException;
 import com.unwrittendfs.simulator.utils.ConfigUtils;
 
 import java.util.*;
@@ -64,18 +65,17 @@ public class DownpourSGD implements IClientWorkload {
         }
     }
 
+    // Read the batches
     private void readMiniBatches(Map<Integer, Set<Long>> clientVsMiniBatch) {
         for (Integer clientId : clientVsMiniBatch.keySet()) {
             Set<Long> miniBatch = clientVsMiniBatch.get(clientId);
             for (Long sampleId : miniBatch) {
                 int openfd = mDfs.open(String.valueOf(sampleId), clientId);
                 if (openfd == -1) {
-                    System.out.println("File failed to open for sample Id : " + sampleId);
-                    return;
+                    throw new GenericException("File failed to open for sample Id : " + sampleId, mDfs);
                 }
                 if (mDfs.read(openfd, "", sampleSize, clientId) <= 0) {
-                    System.out.println("Failed to read for sample Id : " + sampleId);
-                    return;
+                    throw new GenericException("Failed to read for sample Id : " + sampleId, mDfs);
                 }
                 Simulation.incrementSimulatorTime();
                 mDfs.close(openfd, clientId);
@@ -83,6 +83,8 @@ public class DownpourSGD implements IClientWorkload {
         }
     }
 
+    // Dividing the samples into unique set of mini batches. Uniqueness could be an issue here as it might get stuck
+    // into a infinite loop. This will work if batchsize is much smaller than the actual assignment of the workload
     private Map<Integer, Set<Long>> getMiniBatches(List<ClientRange> clients) {
         Map<Integer, Set<Long>> clientVsMiniBatch = new HashMap<>();
         for (ClientRange client : clients) {
@@ -98,15 +100,14 @@ public class DownpourSGD implements IClientWorkload {
 
     private void write(List<ClientRange> clients) {
         for (ClientRange client : clients) {
+            // Create all the chunks. Writing each sample in a different file to ensure uniform distribution across in DFS
             for (Long start = client.start; start <= client.end; start++) {
                 int openfd = mDfs.create(String.valueOf(start), client.id);
                 if (openfd == -1) {
-                    System.out.println("File failed to create for sample Id : " + start);
-                    return;
+                    throw new GenericException("File failed to create for sample Id : " + start, mDfs);
                 }
                 if (mDfs.write(openfd, "", sampleSize, client.id) <= 0) {
-                    System.out.println("Failed to write for sample Id : " + start);
-                    return;
+                    throw new GenericException("Failed to write for sample Id : " + start, mDfs);
                 }
                 Simulation.incrementSimulatorTime();
                 mDfs.close(openfd, client.id);
