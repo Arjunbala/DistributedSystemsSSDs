@@ -1,5 +1,6 @@
 package com.unwrittendfs.simulator.dataserver;
 
+import com.unwrittendfs.simulator.Simulation;
 import com.unwrittendfs.simulator.dfs.DistributedFileSystem;
 import com.unwrittendfs.simulator.dfs.cache.Cache;
 import com.unwrittendfs.simulator.exceptions.GenericException;
@@ -13,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.logging.Logger;
 
 
 public class DataServer {
@@ -26,6 +28,7 @@ public class DataServer {
     // SSD Data Structures
     private Map<Integer, List<Long>> mChunkToPageMapping;
     private Map<Long, PageStatus> mPageList;
+    private static Logger sLog;
 
     // Statistics Structures
     private Map<Long, Integer> mEraseMap;
@@ -58,6 +61,8 @@ public class DataServer {
         }
         cacheLayer = new Cache(config.getCacheSize(), config.getPageSize());
         mRandomGenerator = new Random(mConfig.getmRandomSeed());
+        sLog = Logger.getLogger(DataServer.class.getSimpleName());
+        sLog.setLevel(Simulation.getLogLevel());
     }
 
     public long read(int chunk_id) {
@@ -143,24 +148,14 @@ public class DataServer {
         // If invalid page count goes above threshold, trigger GC
         if (Double.compare(getCurrentFreePageFraction(), getConfig().getmGCThreshold()) < 0) {
             // Trigger GC;
-            System.out.println("Triggering GC");
             triggerGC();
         }
         return (pagesAllocated.size())
                 * mConfig.getPageSize();
     }
 
-    // Make it block level GC
     private void triggerGC() {
-//        for (long pgNo = 0; pgNo < mConfig.getTotalNumPages(); pgNo++) {
-//            if (mPageList.get(pgNo).equals(PageStatus.INVALID)) {
-//                mPageList.put(pgNo, PageStatus.FREE);
-//                increment(mEraseMap, pgNo);
-//                mReadMap.put(pgNo, 0);
-//            }
-//        }
-
-        // Check for a non-dirty block. A block with no valid data.
+        sLog.info("GC Triggered");
         boolean isDirtyBlock = false;
         for (long pgNo = 0; pgNo < mConfig.getTotalNumPages(); pgNo = pgNo + mConfig.getmPagesPerBlock()) {
             for (long start = pgNo; start < pgNo + mConfig.getmPagesPerBlock(); start++) {
