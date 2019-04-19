@@ -109,7 +109,7 @@ public class DataServer {
                 mConfig.getmDisturbanceReadsExponent()) +
                 Math.pow(((double) mEraseMap.get(page) / mConfig.getMaxEraseCount()),
                         mConfig.getmDisturbanceCyclesExponent())) / 2;
-        System.out.println(probability_error);
+        System.out.println("Probability error of reading: " + probability_error);
         if (Double.compare(probability_error, 1.0) == 0
                 || mRandomGenerator.nextDouble() <= probability_error) {
             throw new RuntimeException("The pageId: " + page + " in DS id : " + getConfig().getDataServerId() + " is corrupted and can't be read any longer");

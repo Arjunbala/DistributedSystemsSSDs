@@ -2,7 +2,7 @@
   {
     "mPageSize" : "128",
     "mPagesPerBlock" : "4",
-    "mTotalPages" : "1024",
+    "mTotalPages" : "10240",
     "mMaxReadRetries" : "1",
     "mRandomSeed" : "4",
     "mMaxPageEraseCount": "5",
@@ -17,7 +17,7 @@
   {
     "mPageSize" : "128",
     "mPagesPerBlock" : "4",
-    "mTotalPages" : "1024",
+    "mTotalPages" : "10240",
     "mMaxReadRetries" : "1",
     "mRandomSeed" : "4",
     "mMaxPageEraseCount": "5",
@@ -34,7 +34,7 @@
   {
     "mPageSize" : "128",
     "mPagesPerBlock" : "4",
-    "mTotalPages" : "1024",
+    "mTotalPages" : "10240",
     "mMaxReadRetries" : "1",
     "mRandomSeed" : "4",
     "mMaxPageEraseCount": "5",

@@ -2,7 +2,7 @@ package com.unwrittendfs.simulator.utils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.unwrittendfs.simulator.client.ClientWorkload;
+import com.unwrittendfs.simulator.client.workload.DownPourSGD;
 import com.unwrittendfs.simulator.dataserver.DataserverConfiguration;
 import com.unwrittendfs.simulator.dfs.ClusterConfiguration;
 
@@ -43,15 +43,14 @@ public class ConfigUtils {
 		}
 	}
 
-	public static List<ClientWorkload> getClientWorkload(File jsonContent) throws IOException {
-		try{
-			List<ClientWorkload> clientWorkloads = new ArrayList<>();
-			clientWorkloads = objectMapper.readValue(jsonContent, new TypeReference<List<ClientWorkload>>(){});
-			return clientWorkloads;
-		} catch (IOException e){
-			System.err.println("Failed to initialize the ClientWorkload.json");
-			e.printStackTrace();
-			throw e;
+	public static DownPourSGD getSGDWorkloadConfig(){
+		try {
+			File file = new File("resources/SGDWorkload.json");
+			return objectMapper.readValue(file, DownPourSGD.class);
+		} catch (IOException ex){
+			System.err.println("Failed to read SGDWorkload properties");
+			ex.printStackTrace();
+			throw new RuntimeException(ex);
 		}
 	}
 }
