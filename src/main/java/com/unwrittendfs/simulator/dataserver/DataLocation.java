@@ -24,4 +24,12 @@ public class DataLocation {
 	public void updateRole(DataRole newRole) {
 		mRole = newRole;
 	}
+
+	@Override
+	public String toString() {
+		return "DataLocation{" +
+				"mDataServerId=" + mDataServerId +
+				", mRole=" + mRole +
+				'}';
+	}
 }

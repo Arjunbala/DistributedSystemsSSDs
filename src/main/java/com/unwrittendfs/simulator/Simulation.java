@@ -1,7 +1,7 @@
 package com.unwrittendfs.simulator;
 
-import com.unwrittendfs.simulator.client.workload.TestWorkload;
-import com.unwrittendfs.simulator.client.workload.Workload;
+import com.unwrittendfs.simulator.client.workload.IClientWorkload;
+import com.unwrittendfs.simulator.client.workload.WorkloadFactory;
 import com.unwrittendfs.simulator.dataserver.DataserverConfiguration;
 import com.unwrittendfs.simulator.dfs.ClusterConfiguration;
 import com.unwrittendfs.simulator.dfs.DFSFactory;
@@ -11,10 +11,7 @@ import org.json.simple.parser.JSONParser;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 
 public class Simulation {
@@ -23,21 +20,36 @@ public class Simulation {
 	private static JSONParser jsonParser = new JSONParser();
 	private static DistributedFileSystem mDfs;
 	private static final Level sLogLevel = Level.INFO;
+	private static Simulation simulation;
 	
-	public static void main(String args[]) throws IOException {
+	public static void main(String[] args) throws IOException {
+		if(args.length < 1){
+			System.err.println("Workload type missing. Exiting !!!");
+			return;
+		}
+		String workloadType = args[0];
+		simulation = new Simulation();
 
-		Simulation simulation = new Simulation();
-		File file = simulation.getFileFromResources("ClusterConfig.json");
-		ClusterConfiguration clusterConfiguration = ConfigUtils.getClusterConfig(file);
-		System.out.println(clusterConfiguration);
-		List<DataserverConfiguration> dataserverConfigurations = ConfigUtils.getDataServers
-				(simulation.getFileFromResources("DataServerConfiguration.json"));
-		System.out.println(dataserverConfigurations);
+		ClusterConfiguration clusterConfiguration = simulation.getClusterConfig();
+
+		List<DataserverConfiguration> dataserverConfigurations = simulation.getDataServerConfig();
+
 		mDfs = DFSFactory.getInstance(clusterConfiguration.getmType(), clusterConfiguration, dataserverConfigurations);
-		// TODO: Execute workload based on a workload factory
-		new TestWorkload(mDfs).execute();
+
+		IClientWorkload workload = new WorkloadFactory().getWorkload(workloadType, mDfs);
+		workload.execute();
+
 		mDfs.printStats();
-		return;
+	}
+
+	private ClusterConfiguration getClusterConfig() throws IOException {
+		File file = simulation.getFileFromResources("ClusterConfig.json");
+		return ConfigUtils.getClusterConfig(file);
+	}
+
+	private List<DataserverConfiguration> getDataServerConfig() throws IOException {
+		return ConfigUtils.getDataServers
+				(simulation.getFileFromResources("DataServerConfiguration.json"));
 	}
 
 	private File getFileFromResources(String fileName) {
@@ -50,21 +62,6 @@ public class Simulation {
 			return file;
 		}
 
-	}
-
-	private List<Workload> fileCreationWorkLoad(int workloadCount){
-		List<Workload> workloadList = new ArrayList<>();
-		for (int i = 0;i < workloadCount;i++){
-			Workload workload = new Workload();
-			workload.setWorkloadId(i);
-			workload.setClientId(i);
-			workload.setWorkloadType(Workload.WorkloadType.CREATE);
-			Map<String, Object> workloadData = new HashMap<>();
-			workloadData.put("FILENAME" ,"abc.txt");
-			workload.setWorkloadData(workloadData);
-			workloadList.add(workload);
-		}
-		return workloadList;
 	}
 
 	

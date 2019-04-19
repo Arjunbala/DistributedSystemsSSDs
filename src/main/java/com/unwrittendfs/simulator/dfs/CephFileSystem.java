@@ -64,7 +64,7 @@ public class CephFileSystem extends DistributedFileSystem {
         }
         int replicas = mClusterConfiguration.getNumberReplicas();
         if(minDiscUsageQueue.size() < replicas){
-            throw new RuntimeException("Insufficient memory. Aborting!!!");
+            throw new RuntimeException("Insufficient memory to write more. Aborting!!!");
         }
         List<DataLocation> dataLocations = new ArrayList<>();
 
