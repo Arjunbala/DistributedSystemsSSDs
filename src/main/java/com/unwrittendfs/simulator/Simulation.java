@@ -29,17 +29,24 @@ public class Simulation {
 		}
 		String workloadType = args[0];
 		simulation = new Simulation();
+		try {
 
-		ClusterConfiguration clusterConfiguration = simulation.getClusterConfig();
+			ClusterConfiguration clusterConfiguration = simulation.getClusterConfig();
 
-		List<DataserverConfiguration> dataserverConfigurations = simulation.getDataServerConfig();
+			List<DataserverConfiguration> dataserverConfigurations = simulation.getDataServerConfig();
 
-		mDfs = DFSFactory.getInstance(clusterConfiguration.getmType(), clusterConfiguration, dataserverConfigurations);
+			mDfs = DFSFactory.getInstance(clusterConfiguration.getmType(), clusterConfiguration, dataserverConfigurations);
 
-		IClientWorkload workload = new WorkloadFactory().getWorkload(workloadType, mDfs);
-		workload.execute();
+			IClientWorkload workload = new WorkloadFactory().getWorkload(workloadType, mDfs);
+			workload.execute();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			if (mDfs != null) {
+				mDfs.printStats();
+			}
+		}
 
-		mDfs.printStats();
+
 	}
 
 	private ClusterConfiguration getClusterConfig() throws IOException {

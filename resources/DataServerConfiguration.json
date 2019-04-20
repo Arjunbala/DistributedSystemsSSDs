@@ -3,7 +3,7 @@
     "mPageSize" : "128",
     "mPagesPerBlock" : "4",
     "mTotalPages" : "10240",
-    "mMaxReadRetries" : "1",
+    "mMaxReadRetries": "2",
     "mRandomSeed" : "4",
     "mMaxPageEraseCount": "5",
     "dataServerId" : "1",
@@ -11,14 +11,14 @@
     "cacheSize" : "0",
     "mDisturbanceCyclesExponent" : "3",
     "mDisturbanceReadsExponent" : "1",
-    "mDataScrubbingThreshold"  : "0.1"
+    "mDataScrubbingThreshold": "0.5"
 
   },
   {
     "mPageSize" : "128",
     "mPagesPerBlock" : "4",
     "mTotalPages" : "10240",
-    "mMaxReadRetries" : "1",
+    "mMaxReadRetries": "2",
     "mRandomSeed" : "4",
     "mMaxPageEraseCount": "5",
     "dataServerId" : "2",
@@ -28,25 +28,22 @@
     "cacheSize" : "0",
     "mDisturbanceCyclesExponent" : "3",
     "mDisturbanceReadsExponent" : "1",
-    "mDataScrubbingThreshold"  : "0.1"
+    "mDataScrubbingThreshold": "0.5"
 
   },
   {
     "mPageSize" : "128",
     "mPagesPerBlock" : "4",
     "mTotalPages" : "10240",
-    "mMaxReadRetries" : "1",
+    "mMaxReadRetries": "2",
     "mRandomSeed" : "4",
     "mMaxPageEraseCount": "5",
     "dataServerId" : "3",
-
-
     "mGCThreshold" : "0.25",
-
     "cacheSize" : "0",
     "mDisturbanceCyclesExponent" : "3",
     "mDisturbanceReadsExponent" : "1",
-    "mDataScrubbingThreshold"  : "0.1"
+    "mDataScrubbingThreshold": "0.5"
 
   }
 ]

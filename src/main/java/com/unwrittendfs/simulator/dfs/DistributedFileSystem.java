@@ -4,6 +4,8 @@ import com.unwrittendfs.simulator.Simulation;
 import com.unwrittendfs.simulator.dataserver.DataLocation;
 import com.unwrittendfs.simulator.dataserver.DataServer;
 import com.unwrittendfs.simulator.dataserver.DataserverConfiguration;
+import com.unwrittendfs.simulator.exceptions.GenericException;
+import com.unwrittendfs.simulator.exceptions.PageCorruptedException;
 import com.unwrittendfs.simulator.file.FileAttribute;
 
 import java.util.ArrayList;
@@ -49,7 +51,7 @@ public class DistributedFileSystem {
 		return mMetadataServer.closeFile(fd, client_id);
 	}
 
-	public long read(int fd, String buffer, long count, int client_id) {
+	public long read(int fd, String buffer, long count, int client_id) throws PageCorruptedException, GenericException {
 		// Get the list of chunks from MDS
 		List<Integer> chunks = mMetadataServer.getChunksForFile(fd);
 		if (chunks == null) {
@@ -110,7 +112,7 @@ public class DistributedFileSystem {
 		return null;
 	}
 
-	public long write(int fd, String buffer, long count, int client_id) {
+	public long write(int fd, String buffer, long count, int client_id) throws GenericException {
 		// Get the list of chunks from MDS
 		List<Integer> chunks = mMetadataServer.getChunksForFile(fd);
 		// Get the current offset for this client for this FD
@@ -168,8 +170,8 @@ public class DistributedFileSystem {
 		seek(fd, offset + bytesWritten, client_id);
 		return bytesWritten;
 	}
-	
-	protected long overWriteChunks(List<Integer> chunkstoOverwrite) {
+
+	protected long overWriteChunks(List<Integer> chunkstoOverwrite) throws GenericException {
 		// Implementation can be specific to Distributed File System
 		// Default implementation is to overwrite chunks in the same SSDs
 		long bytesWritten = 0;
@@ -184,8 +186,8 @@ public class DistributedFileSystem {
 		}
 		return bytesWritten/mClusterConfiguration.getmNumReplicas();
 	}
-	
-	protected List<DataLocation> getLocationsForNewChunk() {
+
+	protected List<DataLocation> getLocationsForNewChunk() throws GenericException {
 		// Implementation can be specific to Distributed File System
 		return null;
 	}

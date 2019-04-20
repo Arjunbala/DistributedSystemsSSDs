@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unwrittendfs.simulator.client.workload.DownpourSGD;
 import com.unwrittendfs.simulator.dataserver.DataserverConfiguration;
 import com.unwrittendfs.simulator.dfs.ClusterConfiguration;
-import com.unwrittendfs.simulator.dfs.DistributedFileSystem;
 import com.unwrittendfs.simulator.exceptions.GenericException;
 
 import java.io.File;
@@ -45,14 +44,14 @@ public class ConfigUtils {
 		}
 	}
 
-	public static DownpourSGD getSGDWorkloadConfig(){
+	public static DownpourSGD getSGDWorkloadConfig() throws GenericException {
 		try {
 			File file = new File("resources/SGDWorkload.json");
 			return objectMapper.readValue(file, DownpourSGD.class);
 		} catch (IOException ex){
 			System.err.println("Failed to read SGDWorkload properties");
 			ex.printStackTrace();
-			throw new GenericException("Failed to read SGDWorkload properties", ex, DistributedFileSystem.getInstance());
+			throw new GenericException("Failed to read SGDWorkload properties", ex);
 		}
 	}
 }

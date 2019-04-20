@@ -2,6 +2,8 @@ package com.unwrittendfs.simulator.client.workload;
 
 import com.unwrittendfs.simulator.Simulation;
 import com.unwrittendfs.simulator.dfs.DistributedFileSystem;
+import com.unwrittendfs.simulator.exceptions.GenericException;
+import com.unwrittendfs.simulator.exceptions.PageCorruptedException;
 
 public class TestWorkload implements IClientWorkload {
 	
@@ -12,7 +14,7 @@ public class TestWorkload implements IClientWorkload {
 	}
 
 	@Override
-	public void execute() {
+    public void execute() throws PageCorruptedException, GenericException {
 		int fd = mDfs.create("abc", 1);
 		System.out.println(fd);
 		String buffer = null;

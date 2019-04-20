@@ -1,18 +1,13 @@
 package com.unwrittendfs.simulator.exceptions;
 
-import com.unwrittendfs.simulator.dfs.DistributedFileSystem;
+public class GenericException extends Exception {
 
-public class GenericException extends RuntimeException{
-
-    public GenericException(String message, DistributedFileSystem dfs) {
+    public GenericException(String message) {
         super(message);
-        dfs.printStats();
 
     }
 
-    public GenericException(String message, Throwable throwable, DistributedFileSystem dfs) {
+    public GenericException(String message, Throwable throwable) {
         super(message, throwable);
-        dfs.printStats();
-
     }
 }

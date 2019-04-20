@@ -4,10 +4,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.unwrittendfs.simulator.Simulation;
 import com.unwrittendfs.simulator.dfs.DistributedFileSystem;
 import com.unwrittendfs.simulator.exceptions.GenericException;
+import com.unwrittendfs.simulator.exceptions.PageCorruptedException;
 import com.unwrittendfs.simulator.utils.ConfigUtils;
 
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class DownpourSGD implements IClientWorkload {
 
@@ -18,15 +18,23 @@ public class DownpourSGD implements IClientWorkload {
     private Long batchSize;
     private Long iterationCount;
 
-
+    @JsonIgnore
+    private int testFileCreatorClientId;
     @JsonIgnore
     private Long sampleCount;
     @JsonIgnore
     private Long samplePerClient;
     @JsonIgnore
     private DistributedFileSystem mDfs;
+    @JsonIgnore
+    private String trainingFileName = "trainingData";
+    @JsonIgnore
+    private Integer randomSeed = 5;
+    @JsonIgnore
+    private Random rand;
 
-    public DownpourSGD(DistributedFileSystem mDfs) {
+
+    public DownpourSGD(DistributedFileSystem mDfs) throws GenericException {
         this.mDfs = mDfs;
         DownpourSGD sgd = ConfigUtils.getSGDWorkloadConfig();
         this.trainingDataSize = sgd.trainingDataSize;
@@ -36,6 +44,8 @@ public class DownpourSGD implements IClientWorkload {
         this.iterationCount = sgd.iterationCount;
         this.sampleCount = this.trainingDataSize / sampleSize;
         this.samplePerClient = this.sampleCount / clientCount;
+        this.testFileCreatorClientId = 0;
+        rand = new Random(this.randomSeed);
     }
 
     public DownpourSGD() {
@@ -56,41 +66,59 @@ public class DownpourSGD implements IClientWorkload {
     }
 
 
-    public void execute() {
+    public void execute() throws GenericException, PageCorruptedException {
+        this.write();
         List<ClientRange> clients = assignWorkloadToTheClients();
-        this.write(clients);
         for (long l = 0; l < iterationCount; l++) {
-            Map<Integer, Set<Long>> clientVsMiniBatch = getMiniBatches(clients);
+            Map<Integer, List<Long>> clientVsMiniBatch = getMiniBatches(clients);
             this.readMiniBatches(clientVsMiniBatch);
+
         }
     }
 
     // Read the batches
-    private void readMiniBatches(Map<Integer, Set<Long>> clientVsMiniBatch) {
-        for (Integer clientId : clientVsMiniBatch.keySet()) {
-            Set<Long> miniBatch = clientVsMiniBatch.get(clientId);
-            for (Long sampleId : miniBatch) {
-                int openfd = mDfs.open(String.valueOf(sampleId), clientId);
-                if (openfd == -1) {
-                    throw new GenericException("File failed to open for sample Id : " + sampleId, mDfs);
-                }
-                if (mDfs.read(openfd, "", sampleSize, clientId) <= 0) {
-                    throw new GenericException("Failed to read for sample Id : " + sampleId, mDfs);
-                }
-                Simulation.incrementSimulatorTime();
-                mDfs.close(openfd, clientId);
+    private void readMiniBatches(Map<Integer, List<Long>> clientVsMiniBatch) throws GenericException, PageCorruptedException {
+
+        // Open file for each client;
+        Map<Integer, Integer> clientVsFd = new HashMap<>();
+        for (int client = 1; client <= clientCount; client++) {
+            int openFd = mDfs.open(this.trainingFileName, client);
+            if (openFd <= -1) {
+                throw new GenericException("File failed to open for Client Id : " + client);
             }
+            clientVsFd.put(client, openFd);
         }
+        Simulation.incrementSimulatorTime();
+
+        // Seek and Read files
+        for (int i = 0; i < this.batchSize; i++) {
+            for (int client = 1; client <= clientCount; client++) {
+                Long sampleId = clientVsMiniBatch.get(client).get(i);
+                mDfs.seek(clientVsFd.get(client), (sampleId - 1) * sampleSize, client);
+                mDfs.read(clientVsFd.get(client), "", sampleSize, client);
+            }
+            Simulation.incrementSimulatorTime();
+        }
+
+        // Close for each client
+        for (int client = 1; client <= clientCount; client++) {
+            mDfs.close(clientVsFd.get(client), client);
+        }
+        Simulation.incrementSimulatorTime();
+
+
     }
 
     // Dividing the samples into unique set of mini batches. Uniqueness could be an issue here as it might get stuck
-    // into a infinite loop. This will work if batchsize is much smaller than the actual assignment of the workload
-    private Map<Integer, Set<Long>> getMiniBatches(List<ClientRange> clients) {
-        Map<Integer, Set<Long>> clientVsMiniBatch = new HashMap<>();
+    // into a infinite loop. This will work if batchSize is much smaller than the actual assignment of the workload
+    private Map<Integer, List<Long>> getMiniBatches(List<ClientRange> clients) {
+        Map<Integer, List<Long>> clientVsMiniBatch = new HashMap<>();
         for (ClientRange client : clients) {
-            Set<Long> miniBatch = new HashSet<>();
-            while (miniBatch.size() <= batchSize) {
-                miniBatch.add(ThreadLocalRandom.current().nextLong(client.start, client.end + 1));
+            List<Long> miniBatch = new ArrayList<>();
+            while (miniBatch.size() < batchSize) {
+                int randomNumber = rand.nextInt(this.samplePerClient.intValue()) + 1;
+                // TODO : We wan to replicate the result
+                miniBatch.add(randomNumber + (client.id - 1) * this.samplePerClient);
             }
             clientVsMiniBatch.put(client.id, miniBatch);
         }
@@ -98,21 +126,15 @@ public class DownpourSGD implements IClientWorkload {
     }
 
 
-    private void write(List<ClientRange> clients) {
-        for (ClientRange client : clients) {
-            // Create all the chunks. Writing each sample in a different file to ensure uniform distribution across in DFS
-            for (Long start = client.start; start <= client.end; start++) {
-                int openfd = mDfs.create(String.valueOf(start), client.id);
-                if (openfd == -1) {
-                    throw new GenericException("File failed to create for sample Id : " + start, mDfs);
-                }
-                if (mDfs.write(openfd, "", sampleSize, client.id) <= 0) {
-                    throw new GenericException("Failed to write for sample Id : " + start, mDfs);
-                }
-                Simulation.incrementSimulatorTime();
-                mDfs.close(openfd, client.id);
-            }
+    // TODO : A new client writing the file
+    private void write() throws GenericException {
+
+        int fd = this.mDfs.create(this.trainingFileName, this.testFileCreatorClientId);
+        if (fd <= -1) {
+            throw new GenericException("Failed to write test file");
         }
+        this.mDfs.write(fd, "", this.trainingDataSize, this.testFileCreatorClientId);
+        Simulation.incrementSimulatorTime();
     }
 
     /*

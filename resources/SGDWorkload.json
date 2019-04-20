@@ -3,5 +3,5 @@
   "sampleSize" : "512",
   "clientCount" : "4",
   "batchSize" : "2",
-  "iterationCount" : "10"
+  "iterationCount": "40"
 }

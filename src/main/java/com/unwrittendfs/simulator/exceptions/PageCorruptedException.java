@@ -1,16 +1,12 @@
 package com.unwrittendfs.simulator.exceptions;
 
-import com.unwrittendfs.simulator.dfs.DistributedFileSystem;
+public class PageCorruptedException extends Exception {
 
-public class PageCorruptedException extends RuntimeException {
-
-    public PageCorruptedException(String message, DistributedFileSystem dfs) {
+    public PageCorruptedException(String message) {
         super(message);
-        dfs.printStats();
     }
 
-    public PageCorruptedException(String message, Throwable cause, DistributedFileSystem dfs) {
+    public PageCorruptedException(String message, Throwable cause) {
         super(message, cause);
-        dfs.printStats();
     }
 }

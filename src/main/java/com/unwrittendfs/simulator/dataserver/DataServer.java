@@ -1,19 +1,11 @@
 package com.unwrittendfs.simulator.dataserver;
 
 import com.unwrittendfs.simulator.Simulation;
-import com.unwrittendfs.simulator.dfs.DistributedFileSystem;
 import com.unwrittendfs.simulator.dfs.cache.Cache;
 import com.unwrittendfs.simulator.exceptions.GenericException;
 import com.unwrittendfs.simulator.exceptions.PageCorruptedException;
 
-
 import java.util.*;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
 import java.util.logging.Logger;
 
 
@@ -65,7 +57,7 @@ public class DataServer {
         sLog.setLevel(Simulation.getLogLevel());
     }
 
-    public long read(int chunk_id) {
+    public long read(int chunk_id) throws PageCorruptedException, GenericException {
 
         List<Long> pagesToRead = mChunkToPageMapping.get(chunk_id);
         if (pagesToRead == null) {
@@ -82,11 +74,14 @@ public class DataServer {
                 if (mPageList.get(page) == PageStatus.VALID) {
                     int retries = 0;
                     // model error on read
-                    if (!canReadPageWithoutError(page)) {
+                    while (!canReadPageWithoutError(page)) {
                         retries++;
+                        increment(mReadMap, page);
                         if (retries == mConfig.getMaxReadRetries()) {
                             increment(mReadMap, page);
-                            return -1; // read not successful, unrecoverable error
+                            sLog.info("No. of retries : " + retries);
+                            throw new PageCorruptedException("The pageId: " + page + " in DS id : "
+                                    + getConfig().getDataServerId() + " is corrupted and can't be read any longer");
                         }
                     }
                     System.out.println("Number retries: " + retries);
@@ -107,7 +102,7 @@ public class DataServer {
         return bytesRead;
     }
 
-    private void handleDataScrubbing(int chunk_id) {
+    private void handleDataScrubbing(int chunk_id) throws GenericException {
         // In terms of wear, data scrubbing is equivalent of a write to this chunk
         write(chunk_id, mChunkToPageMapping.get(chunk_id).size() * mConfig.getmPageSize());
     }
@@ -118,16 +113,14 @@ public class DataServer {
                 Math.pow(((double) mEraseMap.get(page) / mConfig.getMaxEraseCount()),
                         mConfig.getmDisturbanceCyclesExponent())) / 2;
         System.out.println("Probability error of reading: " + probability_error);
-        if (Double.compare(probability_error, 1.0) == 0
+        if (Double.compare(probability_error, 1.0) >= 0
                 || mRandomGenerator.nextDouble() <= probability_error) {
-            throw new PageCorruptedException("The pageId: " + page + " in DS id : "
-                    + getConfig().getDataServerId() + " is corrupted and can't be read any longer",
-                    DistributedFileSystem.getInstance());
+            return false;
         }
         return true;
     }
 
-    public long write(int chunk_id, long chunk_size) {
+    public long write(int chunk_id, long chunk_size) throws GenericException {
         int numPagesToAllocate = (int) (chunk_size / mConfig.getPageSize());
 
         // Greedily select the pages according to the PE ratio
@@ -178,7 +171,7 @@ public class DataServer {
     }
 
     // Greedy Allocation policy while writing
-    private List<Long> greedyPageAllocationPolicy(int numPages) {
+    private List<Long> greedyPageAllocationPolicy(int numPages) throws GenericException {
         if (numPages == 0) {
             return new ArrayList<>();
         }
@@ -201,7 +194,7 @@ public class DataServer {
             }
         }
         if (queue.size() != numPages) {
-            throw new GenericException("Required space is not available for allocation", DistributedFileSystem.getInstance());
+            throw new GenericException("Required space is not available for allocation");
         }
         for (PagePEWrites peWrites : queue) {
             allocatedPages.add(peWrites.pageNo);

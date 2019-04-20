@@ -54,7 +54,7 @@ public class CephFileSystem extends DistributedFileSystem {
 
     // Measure the performance of this. This should be round robin
     @Override
-    protected List<DataLocation> getLocationsForNewChunk() {
+    protected List<DataLocation> getLocationsForNewChunk() throws GenericException {
         // Get the current set of data servers and it's disc usage
         for (Integer dataServerId : mDataServerMap.keySet()) {
             if(mDataServerMap.get(dataServerId).getDiskUsage() <
@@ -65,7 +65,7 @@ public class CephFileSystem extends DistributedFileSystem {
         }
         int replicas = mClusterConfiguration.getNumberReplicas();
         if(minDiscUsageQueue.size() < replicas){
-            throw new GenericException("Insufficient memory to write more. Aborting!!!", DistributedFileSystem.getInstance());
+            throw new GenericException("Insufficient memory to write more. Aborting!!!");
         }
         List<DataLocation> dataLocations = new ArrayList<>();
 
