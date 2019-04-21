@@ -11,7 +11,8 @@
     "cacheSize" : "0",
     "mDisturbanceCyclesExponent" : "3",
     "mDisturbanceReadsExponent" : "1",
-    "mDataScrubbingThreshold": "0.5"
+    "mDataScrubbingThreshold": "0.5",
+    "mMaxPageReadCount": "50"
 
   },
   {
@@ -28,7 +29,8 @@
     "cacheSize" : "0",
     "mDisturbanceCyclesExponent" : "3",
     "mDisturbanceReadsExponent" : "1",
-    "mDataScrubbingThreshold": "0.5"
+    "mDataScrubbingThreshold": "0.5",
+    "mMaxPageReadCount": "50"
 
   },
   {
@@ -43,7 +45,8 @@
     "cacheSize" : "0",
     "mDisturbanceCyclesExponent" : "3",
     "mDisturbanceReadsExponent" : "1",
-    "mDataScrubbingThreshold": "0.5"
+    "mDataScrubbingThreshold": "0.5",
+    "mMaxPageReadCount": "50"
 
   }
 ]

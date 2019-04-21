@@ -108,7 +108,7 @@ public class DataServer {
     }
 
     private boolean canReadPageWithoutError(long page) {
-        double probability_error = (Math.pow(((double) mReadMap.get(page) / mConfig.getMaxReadRetries()),
+        double probability_error = (Math.pow(((double) mReadMap.get(page) / mConfig.getmMaxPageReadCount()),
                 mConfig.getmDisturbanceReadsExponent()) +
                 Math.pow(((double) mEraseMap.get(page) / mConfig.getMaxEraseCount()),
                         mConfig.getmDisturbanceCyclesExponent())) / 2;

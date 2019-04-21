@@ -117,7 +117,6 @@ public class DownpourSGD implements IClientWorkload {
             List<Long> miniBatch = new ArrayList<>();
             while (miniBatch.size() < batchSize) {
                 int randomNumber = rand.nextInt(this.samplePerClient.intValue()) + 1;
-                // TODO : We wan to replicate the result
                 miniBatch.add(randomNumber + (client.id - 1) * this.samplePerClient);
             }
             clientVsMiniBatch.put(client.id, miniBatch);
@@ -126,7 +125,6 @@ public class DownpourSGD implements IClientWorkload {
     }
 
 
-    // TODO : A new client writing the file
     private void write() throws GenericException {
 
         int fd = this.mDfs.create(this.trainingFileName, this.testFileCreatorClientId);

@@ -3,6 +3,7 @@ package com.unwrittendfs.simulator.utils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unwrittendfs.simulator.client.workload.DownpourSGD;
+import com.unwrittendfs.simulator.client.workload.HotNCold;
 import com.unwrittendfs.simulator.dataserver.DataserverConfiguration;
 import com.unwrittendfs.simulator.dfs.ClusterConfiguration;
 import com.unwrittendfs.simulator.exceptions.GenericException;
@@ -49,9 +50,16 @@ public class ConfigUtils {
 			File file = new File("resources/SGDWorkload.json");
 			return objectMapper.readValue(file, DownpourSGD.class);
 		} catch (IOException ex){
-			System.err.println("Failed to read SGDWorkload properties");
-			ex.printStackTrace();
 			throw new GenericException("Failed to read SGDWorkload properties", ex);
+		}
+	}
+
+	public static HotNCold getHotNColdWorkloadConfig() throws GenericException {
+		try {
+			File file = new File("resources/HotNCold.json");
+			return objectMapper.readValue(file, HotNCold.class);
+		} catch (IOException ex) {
+			throw new GenericException("Failed to read HotNCold Workload properties", ex);
 		}
 	}
 }

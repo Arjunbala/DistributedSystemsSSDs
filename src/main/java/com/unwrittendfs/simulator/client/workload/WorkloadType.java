@@ -2,5 +2,6 @@ package com.unwrittendfs.simulator.client.workload;
 
 public enum WorkloadType {
     SGD,
-    TEST
+    TEST,
+    HOT_N_COLD
 }

@@ -13,6 +13,7 @@ public class DataserverConfiguration {
 	private int mMaxPageEraseCount;
 	private int dataServerId;
 	private Long cacheSize;
+	private int mMaxPageReadCount;
 
 	private Double mGCThreshold;
 
@@ -146,6 +147,14 @@ public class DataserverConfiguration {
 
 	public void setmGCThreshold(Double mGCThreshold) {
 		this.mGCThreshold = mGCThreshold;
+	}
+
+	public int getmMaxPageReadCount() {
+		return mMaxPageReadCount;
+	}
+
+	public void setmMaxPageReadCount(int mMaxPageReadCount) {
+		this.mMaxPageReadCount = mMaxPageReadCount;
 	}
 
 	@Override
