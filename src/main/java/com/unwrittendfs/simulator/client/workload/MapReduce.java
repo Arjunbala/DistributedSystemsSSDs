@@ -1,6 +1,7 @@
 package com.unwrittendfs.simulator.client.workload;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.unwrittendfs.simulator.Simulation;
 import com.unwrittendfs.simulator.dfs.DistributedFileSystem;
 import com.unwrittendfs.simulator.exceptions.GenericException;
 import com.unwrittendfs.simulator.utils.ConfigUtils;
@@ -70,6 +71,7 @@ public class MapReduce implements IClientWorkload {
             }
             this.dfs.close(fd, userId);
         }
+        Simulation.incrementSimulatorTime();
     }
 
     private void mapperRead(int iterationNumber) throws GenericException {
@@ -84,6 +86,7 @@ public class MapReduce implements IClientWorkload {
             }
             this.dfs.close(fd, userId);
         }
+        Simulation.incrementSimulatorTime();
     }
 
     private void reducerWrite(int iterationNumber) throws GenericException {
@@ -104,6 +107,7 @@ public class MapReduce implements IClientWorkload {
             }
             this.dfs.close(fd, userId);
         }
+        Simulation.incrementSimulatorTime();
     }
 
     private void reducerRead(int iterationNumber) throws GenericException {
@@ -118,6 +122,7 @@ public class MapReduce implements IClientWorkload {
             }
             this.dfs.close(fd, userId);
         }
+        Simulation.incrementSimulatorTime();
 
     }
 
@@ -132,6 +137,7 @@ public class MapReduce implements IClientWorkload {
                 throw new GenericException("Failed to delete file : " + fileName);
             }
         }
+        Simulation.incrementSimulatorTime();
     }
 
     private void selectRandomSkewedPartitions() {
