@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unwrittendfs.simulator.client.workload.DownpourSGD;
 import com.unwrittendfs.simulator.client.workload.HotNCold;
+import com.unwrittendfs.simulator.client.workload.MapReduce;
 import com.unwrittendfs.simulator.dataserver.DataserverConfiguration;
 import com.unwrittendfs.simulator.dfs.ClusterConfiguration;
 import com.unwrittendfs.simulator.exceptions.GenericException;
@@ -60,6 +61,15 @@ public class ConfigUtils {
 			return objectMapper.readValue(file, HotNCold.class);
 		} catch (IOException ex) {
 			throw new GenericException("Failed to read HotNCold Workload properties", ex);
+		}
+	}
+
+	public static MapReduce getMapReduceWorkloadConfig() throws GenericException {
+		try {
+			File file = new File("resources/MapReduce.json");
+			return objectMapper.readValue(file, MapReduce.class);
+		} catch (IOException ex) {
+			throw new GenericException("Failed to read MapReduce Workload properties", ex);
 		}
 	}
 }

@@ -11,6 +11,8 @@ public class WorkloadFactory {
             return new DownpourSGD(mDfs);
         } else if (WorkloadType.HOT_N_COLD.name().equals(workloadType)) {
             return new HotNCold(mDfs);
+        } else if (WorkloadType.MAP_REDUCE.name().equals(workloadType)) {
+            return new MapReduce(mDfs);
         } else {
             throw new GenericException("Invalid workload type");
         }
