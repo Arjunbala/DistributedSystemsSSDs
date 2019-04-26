@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.unwrittendfs.simulator.Simulation;
 import com.unwrittendfs.simulator.dfs.DistributedFileSystem;
 import com.unwrittendfs.simulator.exceptions.GenericException;
-import com.unwrittendfs.simulator.exceptions.PageCorruptedException;
 import com.unwrittendfs.simulator.utils.ConfigUtils;
 
 import java.util.*;
@@ -34,12 +33,12 @@ public class HotNCold implements IClientWorkload {
     public HotNCold() {
     }
 
-    public HotNCold(DistributedFileSystem dfs) throws GenericException {
+    public HotNCold(DistributedFileSystem dfs, String workloadConfig) throws GenericException {
         this.dfs = dfs;
         this.random = new Random(5);
         this.nonSkewedFiles = new HashMap<>();
         this.skewedFiles = new ArrayList<>();
-        HotNCold hotNCold = ConfigUtils.getHotNColdWorkloadConfig();
+        HotNCold hotNCold = ConfigUtils.getHotNColdWorkloadConfig(workloadConfig);
         this.noOfFile = hotNCold.noOfFile;
         this.iterationCount = hotNCold.iterationCount;
         this.skewedFileCount = hotNCold.skewedFileCount;
@@ -47,7 +46,7 @@ public class HotNCold implements IClientWorkload {
     }
 
     @Override
-    public void execute() throws GenericException, PageCorruptedException {
+    public void execute() throws GenericException {
         selectSkewedFiles();
         writeFiles();
         Random randomSkewedFile = new Random(5);
@@ -55,7 +54,7 @@ public class HotNCold implements IClientWorkload {
 
         int skewedCount = 0;
         int nonskewedCount = 0;
-        for (long l = 0; l < iterationCount; l++) {
+        for (long l = 0; l != iterationCount; l++) {
             int randomNo = random.nextInt(100) + 1;
             // Below function takes care of dividing the workload 90:10
             // Read skewed file
@@ -76,7 +75,7 @@ public class HotNCold implements IClientWorkload {
     }
 
     // Add a chunk, seek to 0th position and read the file
-    private void fileReadAndWrite(String fileName) throws GenericException, PageCorruptedException {
+    private void fileReadAndWrite(String fileName) throws GenericException {
         int fd = this.dfs.open(fileName, userId);
         if (fd <= -1) {
             throw new GenericException("Failed to open file : " + fileName);

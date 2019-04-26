@@ -1,6 +1,6 @@
 {
   "noOfFile": "100",
-  "iterationCount": "100",
+  "iterationCount": "-1",
   "skewedFileCount": "5",
-  "fileSize": "1024"
+  "fileSize": "2048"
 }

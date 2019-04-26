@@ -46,27 +46,42 @@ public class ConfigUtils {
 		}
 	}
 
-	public static DownpourSGD getSGDWorkloadConfig() throws GenericException {
+	public static DownpourSGD getSGDWorkloadConfig(String workloadConfig) throws GenericException {
+		File file;
 		try {
-			File file = new File("resources/SGDWorkload.json");
+			if (workloadConfig != null) {
+				file = new File("resources/" + workloadConfig);
+			} else {
+				file = new File("resources/SGDWorkload.json");
+			}
 			return objectMapper.readValue(file, DownpourSGD.class);
 		} catch (IOException ex){
 			throw new GenericException("Failed to read SGDWorkload properties", ex);
 		}
 	}
 
-	public static HotNCold getHotNColdWorkloadConfig() throws GenericException {
+	public static HotNCold getHotNColdWorkloadConfig(String workloadConfig) throws GenericException {
+		File file;
 		try {
-			File file = new File("resources/HotNCold.json");
+			if (workloadConfig != null) {
+				file = new File("resources/" + workloadConfig);
+			} else {
+				file = new File("resources/HotNCold.json");
+			}
 			return objectMapper.readValue(file, HotNCold.class);
 		} catch (IOException ex) {
 			throw new GenericException("Failed to read HotNCold Workload properties", ex);
 		}
 	}
 
-	public static MapReduce getMapReduceWorkloadConfig() throws GenericException {
+	public static MapReduce getMapReduceWorkloadConfig(String workloadConfig) throws GenericException {
+		File file;
 		try {
-			File file = new File("resources/MapReduce.json");
+			if (workloadConfig != null) {
+				file = new File("resources/" + workloadConfig);
+			} else {
+				file = new File("resources/MapReduce.json");
+			}
 			return objectMapper.readValue(file, MapReduce.class);
 		} catch (IOException ex) {
 			throw new GenericException("Failed to read MapReduce Workload properties", ex);

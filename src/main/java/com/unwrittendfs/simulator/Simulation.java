@@ -19,55 +19,71 @@ public class Simulation {
 	private static Long sSimulatorTime = 0l;
 	private static JSONParser jsonParser = new JSONParser();
 	private static DistributedFileSystem mDfs;
-	private static final Level sLogLevel = Level.INFO;
+	private static final Level sLogLevel = Level.OFF;
 	private static Simulation simulation;
-	
-	public static void main(String[] args) throws IOException {
-		if(args.length < 1){
-			System.err.println("Workload type missing. Exiting !!!");
+
+
+	/*
+	Input Args sequence
+	args[0] = WorkloadType
+	args[1] = ClusterConfig.json
+	args[2] = DataServerConfiguration.json
+	args[3] = Workload.json (Optional)
+	 */
+
+	public static void main(String[] args) {
+		if (args.length < 3) {
+			System.err.println("Incorrect input args sequence\n" +
+					"\targs[0] = WorkloadType\n" +
+					"\targs[1] = ClusterConfig.json\n" +
+					"\targs[2] = DataServerConfiguration.json\n" +
+					"\targs[3] = Workload.json (Optional). Exiting !!!");
 			return;
 		}
 		String workloadType = args[0];
+		String clusterConfig = args[1];
+		String dataServerConfig = args[2];
+		String workloadConfig = null;
+		if (args.length == 4) {
+			workloadConfig = args[3];
+		}
 		simulation = new Simulation();
 		try {
 
-			ClusterConfiguration clusterConfiguration = simulation.getClusterConfig();
+			ClusterConfiguration clusterConfiguration = simulation.getClusterConfig(clusterConfig);
 
-			List<DataserverConfiguration> dataserverConfigurations = simulation.getDataServerConfig();
+			List<DataserverConfiguration> dataserverConfigurations = simulation.getDataServerConfig(dataServerConfig);
 
 			mDfs = DFSFactory.getInstance(clusterConfiguration.getmType(), clusterConfiguration, dataserverConfigurations);
 
-			IClientWorkload workload = new WorkloadFactory().getWorkload(workloadType, mDfs);
+			IClientWorkload workload = new WorkloadFactory().getWorkload(workloadType, mDfs, workloadConfig);
 			workload.execute();
 		} catch (Exception ex) {
 			ex.printStackTrace();
+		} finally {
 			if (mDfs != null) {
 				mDfs.printStats();
+			} else {
+				System.out.println("The object DFS is null");
 			}
 		}
 
 
 	}
 
-	private ClusterConfiguration getClusterConfig() throws IOException {
-		File file = simulation.getFileFromResources("ClusterConfig.json");
+	private ClusterConfiguration getClusterConfig(String clusterConfig) throws IOException {
+		File file = simulation.getFileFromResources(clusterConfig);
 		return ConfigUtils.getClusterConfig(file);
 	}
 
-	private List<DataserverConfiguration> getDataServerConfig() throws IOException {
+	private List<DataserverConfiguration> getDataServerConfig(String dataServerConfig) throws IOException {
 		return ConfigUtils.getDataServers
-				(simulation.getFileFromResources("DataServerConfiguration.json"));
+				(simulation.getFileFromResources(dataServerConfig));
 	}
 
 	private File getFileFromResources(String fileName) {
 
-		File file = new File("resources/" + fileName);
-
-		if (file == null) {
-			throw new IllegalArgumentException("file is not found!");
-		} else {
-			return file;
-		}
+		return new File("resources/" + fileName);
 
 	}
 

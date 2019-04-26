@@ -1,7 +1,7 @@
 {
-  "trainingDataSize" : "10240",
+  "trainingDataSize": "102400",
   "sampleSize" : "512",
   "clientCount" : "4",
-  "batchSize" : "2",
-  "iterationCount": "40"
+  "batchSize": "1",
+  "iterationCount": "100000"
 }
