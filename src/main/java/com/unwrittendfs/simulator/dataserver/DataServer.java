@@ -258,8 +258,8 @@ public class DataServer {
         	}
         }
         System.out.println("DS " + mConfig.getDataServerId() + " Max Erased: " + max_erase_count);
-        //System.out.println("DS" + mConfig.getDataServerId() + " Valid: " + valid
-       //         + " Invalid: " + invalid + " Free: " + free);
+        System.out.println("DS" + mConfig.getDataServerId() + " Valid: " + valid
+              + " Invalid: " + invalid + " Free: " + free);
         //System.out.println(mEraseMap.toString());
     }
 
