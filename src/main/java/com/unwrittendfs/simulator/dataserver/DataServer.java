@@ -77,7 +77,7 @@ public class DataServer {
                                     + getConfig().getDataServerId() + " is corrupted and can't be read any longer");
                         }
                     }
-                    System.out.println("Number retries: " + retries);
+                    //System.out.println("Number retries: " + retries);
                     bytesRead += mConfig.getPageSize();
                     increment(mReadMap, page);
                     cacheLayer.add(page);
@@ -90,7 +90,7 @@ public class DataServer {
             }
         }
         if (!pagesToMigrate.isEmpty()) {
-            System.out.println("Migrating chunk : " + chunk_id);
+            //System.out.println("Migrating chunk : " + chunk_id);
             handleDataScrubbing(chunk_id);
         }
         return bytesRead;

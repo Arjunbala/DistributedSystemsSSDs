@@ -69,7 +69,9 @@ public class DownpourSGD implements IClientWorkload {
         this.write();
         List<ClientRange> clients = assignWorkloadToTheClients();
         for (long l = 0; l != iterationCount; l++) {
-            System.out.println("Iteration Count : " + l);
+        	if(l%10000 == 0) {
+        		System.out.println("Iteration Count : " + l);
+        	}
             Map<Integer, List<Long>> clientVsMiniBatch = getMiniBatches(clients);
             this.readMiniBatches(clientVsMiniBatch);
 
