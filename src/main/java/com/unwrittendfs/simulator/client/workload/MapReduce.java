@@ -47,15 +47,17 @@ public class MapReduce implements IClientWorkload {
             iteration++;
             reducerRead(iteration);
             reducerWrite(iteration);
-            mapperRead(iteration);
             reducerDelete(iteration);
+            mapperRead(iteration);
+            mapperWrite(iteration);
+            mapperDelete(iteration);
         }
     }
 
 
     private void mapperWrite(int iterationNumber) throws GenericException {
         for (int i = 0; i < partitionCount; i++) {
-            String fileName = iterationNumber + "_" + i;
+            String fileName = "mapper_" + iterationNumber + "_" + i;
             int fd = this.dfs.create(fileName, userId);
             if (fd <= -1) {
                 throw new GenericException("Failed to create file : " + fileName);
@@ -76,7 +78,7 @@ public class MapReduce implements IClientWorkload {
 
     private void mapperRead(int iterationNumber) throws GenericException {
         for (int i = 0; i < partitionCount; i++) {
-            String fileName = (iterationNumber) + "_" + i;
+            String fileName = "reducer_" + (iterationNumber) + "_" + i;
             int fd = this.dfs.open(fileName, userId);
             if (fd <= -1) {
                 throw new GenericException("Failed to create file : " + fileName);
@@ -91,7 +93,7 @@ public class MapReduce implements IClientWorkload {
 
     private void reducerWrite(int iterationNumber) throws GenericException {
         for (int i = 0; i < partitionCount; i++) {
-            String fileName = iterationNumber + "_" + i;
+            String fileName = "reducer_" + iterationNumber + "_" + i;
             int fd = this.dfs.create(fileName, userId);
             if (fd <= -1) {
                 throw new GenericException("Failed to create file : " + fileName);
@@ -112,7 +114,7 @@ public class MapReduce implements IClientWorkload {
 
     private void reducerRead(int iterationNumber) throws GenericException {
         for (int i = 0; i < partitionCount; i++) {
-            String fileName = (iterationNumber - 1) + "_" + i;
+            String fileName = "mapper_" + (iterationNumber - 1) + "_" + i;
             int fd = this.dfs.open(fileName, userId);
             if (fd <= -1) {
                 throw new GenericException("Failed to create file : " + fileName);
@@ -128,10 +130,24 @@ public class MapReduce implements IClientWorkload {
 
     private void reducerDelete(int iterationNumber) throws GenericException {
         for (int i = 0; i < partitionCount; i++) {
-            String fileName = (iterationNumber - 1) + "_" + i;
+            String fileName = "mapper_" + (iterationNumber - 1) + "_" + i;
             int fd = this.dfs.open(fileName, userId);
             if (fd <= -1) {
-                throw new GenericException("Failed to create file : " + fileName);
+                throw new GenericException("Failed to open file : " + fileName);
+            }
+            if (!this.dfs.delete(fd)) {
+                throw new GenericException("Failed to delete file : " + fileName);
+            }
+        }
+        Simulation.incrementSimulatorTime();
+    }
+
+    private void mapperDelete(int iterationNumber) throws GenericException {
+        for (int i = 0; i < partitionCount; i++) {
+            String fileName = "reducer_" + (iterationNumber) + "_" + i;
+            int fd = this.dfs.open(fileName, userId);
+            if (fd <= -1) {
+                throw new GenericException("Failed to open file : " + fileName);
             }
             if (!this.dfs.delete(fd)) {
                 throw new GenericException("Failed to delete file : " + fileName);
