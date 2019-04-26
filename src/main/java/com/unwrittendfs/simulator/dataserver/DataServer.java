@@ -251,9 +251,16 @@ public class DataServer {
                 valid++;
             }
         }
-        System.out.println("DS" + mConfig.getDataServerId() + " Valid: " + valid
-                + " Invalid: " + invalid + " Free: " + free);
-        System.out.println(mEraseMap.toString());
+        int max_erase_count = 0;
+        for(Long page : mEraseMap.keySet()) {
+        	if(mEraseMap.get(page) > max_erase_count) {
+        		max_erase_count = mEraseMap.get(page);
+        	}
+        }
+        System.out.println("DS " + mConfig.getDataServerId() + " Max Erased: " + max_erase_count);
+        //System.out.println("DS" + mConfig.getDataServerId() + " Valid: " + valid
+       //         + " Invalid: " + invalid + " Free: " + free);
+        //System.out.println(mEraseMap.toString());
     }
 
     private void increment(Map<Long, Integer> map, long page) {
