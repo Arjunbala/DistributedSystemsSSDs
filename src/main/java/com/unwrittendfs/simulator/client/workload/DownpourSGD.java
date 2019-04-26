@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.unwrittendfs.simulator.Simulation;
 import com.unwrittendfs.simulator.dfs.DistributedFileSystem;
 import com.unwrittendfs.simulator.exceptions.GenericException;
-import com.unwrittendfs.simulator.exceptions.PageCorruptedException;
 import com.unwrittendfs.simulator.utils.ConfigUtils;
 
 import java.util.*;
@@ -34,9 +33,9 @@ public class DownpourSGD implements IClientWorkload {
     private Random rand;
 
 
-    public DownpourSGD(DistributedFileSystem mDfs) throws GenericException {
+    public DownpourSGD(DistributedFileSystem mDfs, String workloadConfig) throws GenericException {
         this.mDfs = mDfs;
-        DownpourSGD sgd = ConfigUtils.getSGDWorkloadConfig();
+        DownpourSGD sgd = ConfigUtils.getSGDWorkloadConfig(workloadConfig);
         this.trainingDataSize = sgd.trainingDataSize;
         this.sampleSize = sgd.sampleSize;
         this.clientCount = sgd.clientCount;
@@ -66,7 +65,7 @@ public class DownpourSGD implements IClientWorkload {
     }
 
 
-    public void execute() throws GenericException, PageCorruptedException {
+    public void execute() throws GenericException {
         this.write();
         List<ClientRange> clients = assignWorkloadToTheClients();
         for (long l = 0; l != iterationCount; l++) {
@@ -78,7 +77,7 @@ public class DownpourSGD implements IClientWorkload {
     }
 
     // Read the batches
-    private void readMiniBatches(Map<Integer, List<Long>> clientVsMiniBatch) throws GenericException, PageCorruptedException {
+    private void readMiniBatches(Map<Integer, List<Long>> clientVsMiniBatch) throws GenericException {
 
         // Open file for each client;
         Map<Integer, Integer> clientVsFd = new HashMap<>();

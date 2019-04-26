@@ -27,8 +27,8 @@ public class MapReduce implements IClientWorkload {
     public MapReduce() {
     }
 
-    public MapReduce(DistributedFileSystem dfs) throws GenericException {
-        MapReduce mapReduce = ConfigUtils.getMapReduceWorkloadConfig();
+    public MapReduce(DistributedFileSystem dfs, String workloadConfig) throws GenericException {
+        MapReduce mapReduce = ConfigUtils.getMapReduceWorkloadConfig(workloadConfig);
         this.dfs = dfs;
         this.reducerCount = mapReduce.reducerCount;
         this.dataSize = mapReduce.dataSize;
