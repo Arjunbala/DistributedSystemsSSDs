@@ -143,13 +143,16 @@ public class DataServer {
 
     private void triggerGC() {
         System.out.println("GC Triggered");
+        //printStats();
         boolean isDirtyBlock = false;
         for (long pgNo = 0; pgNo < mConfig.getTotalNumPages(); pgNo = pgNo + mConfig.getmPagesPerBlock()) {
+        	isDirtyBlock = false;
             for (long start = pgNo; start < pgNo + mConfig.getmPagesPerBlock(); start++) {
                 if (mPageList.get(start).equals(PageStatus.VALID)) {
                     isDirtyBlock = true;
                 }
             }
+            //System.out.println("Block validity: " + isDirtyBlock);
 //             If the block has no valid data then clean the block
             if (!isDirtyBlock) {
                 for (long start = pgNo; start < pgNo + mConfig.getmPagesPerBlock(); start++) {
@@ -256,6 +259,7 @@ public class DataServer {
         System.out.println("DS " + mConfig.getDataServerId() + " Max Erased: " + max_erase_count);
         System.out.println("DS" + mConfig.getDataServerId() + " Valid: " + valid
               + " Invalid: " + invalid + " Free: " + free);
+        //System.out.println(mPageList.toString());
         //System.out.println(mEraseMap.toString());
     }
 
