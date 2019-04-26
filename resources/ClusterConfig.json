@@ -2,5 +2,5 @@
   "mChunkSize" : "512",
   "mNumReplicas" : "2",
   "mRecentCreationsFraction" : "1",
-  "mType" : "GFS"
+  "mType": "Ceph"
 }

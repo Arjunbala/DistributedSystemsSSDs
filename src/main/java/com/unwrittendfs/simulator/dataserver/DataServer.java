@@ -205,6 +205,7 @@ public class DataServer {
         return allocatedPages;
     }
 
+    // TODO Not removing pages from the map???
     public boolean deleteChunks(List<Integer> chunk_ids) {
         for (Integer chunk_id : chunk_ids) {
             List<Long> pagesToInvalidate = mChunkToPageMapping.get(chunk_id);
@@ -217,6 +218,7 @@ public class DataServer {
                 }
                 cacheLayer.invalidateCache(page);
             }
+            mChunkToPageMapping.remove(chunk_id);
         }
         // TODO : Are you sure don't want to trigger GC when free memeory goes below a threshold
         triggerGC();
