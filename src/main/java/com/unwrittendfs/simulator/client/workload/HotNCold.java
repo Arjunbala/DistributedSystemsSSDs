@@ -55,7 +55,7 @@ public class HotNCold implements IClientWorkload {
 
         int skewedCount = 0;
         int nonskewedCount = 0;
-        for (long l = 0; l < iterationCount; l++) {
+        for (long l = 0; l != iterationCount; l++) {
             int randomNo = random.nextInt(100) + 1;
             // Below function takes care of dividing the workload 90:10
             // Read skewed file

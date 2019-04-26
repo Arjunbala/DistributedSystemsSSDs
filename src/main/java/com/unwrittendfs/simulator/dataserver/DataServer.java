@@ -97,6 +97,7 @@ public class DataServer {
             }
         }
         if (!pagesToMigrate.isEmpty()) {
+            System.out.println("Migrating chunk : " + chunk_id);
             handleDataScrubbing(chunk_id);
         }
         return bytesRead;
@@ -112,7 +113,7 @@ public class DataServer {
                 mConfig.getmDisturbanceReadsExponent()) +
                 Math.pow(((double) mEraseMap.get(page) / mConfig.getMaxEraseCount()),
                         mConfig.getmDisturbanceCyclesExponent())) / 2;
-        System.out.println("Probability error of reading: " + probability_error);
+//        System.out.println("Probability error of reading: " + probability_error);
         if (Double.compare(probability_error, 1.0) >= 0
                 || mRandomGenerator.nextDouble() <= probability_error) {
             return false;
@@ -148,7 +149,7 @@ public class DataServer {
     }
 
     private void triggerGC() {
-        sLog.info("GC Triggered");
+        System.out.println("GC Triggered");
         boolean isDirtyBlock = false;
         for (long pgNo = 0; pgNo < mConfig.getTotalNumPages(); pgNo = pgNo + mConfig.getmPagesPerBlock()) {
             for (long start = pgNo; start < pgNo + mConfig.getmPagesPerBlock(); start++) {
@@ -156,7 +157,7 @@ public class DataServer {
                     isDirtyBlock = true;
                 }
             }
-            // If the block has no valid data then clean the block
+//             If the block has no valid data then clean the block
             if (!isDirtyBlock) {
                 for (long start = pgNo; start < pgNo + mConfig.getmPagesPerBlock(); start++) {
                     if (mPageList.get(start).equals(PageStatus.INVALID)) {

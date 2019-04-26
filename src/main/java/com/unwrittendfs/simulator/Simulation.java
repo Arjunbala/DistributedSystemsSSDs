@@ -19,7 +19,7 @@ public class Simulation {
 	private static Long sSimulatorTime = 0l;
 	private static JSONParser jsonParser = new JSONParser();
 	private static DistributedFileSystem mDfs;
-	private static final Level sLogLevel = Level.INFO;
+	private static final Level sLogLevel = Level.OFF;
 	private static Simulation simulation;
 	
 	public static void main(String[] args) throws IOException {
@@ -41,6 +41,7 @@ public class Simulation {
 			workload.execute();
 		} catch (Exception ex) {
 			ex.printStackTrace();
+		} finally {
 			if (mDfs != null) {
 				mDfs.printStats();
 			}

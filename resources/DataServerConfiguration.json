@@ -2,51 +2,79 @@
   {
     "mPageSize" : "128",
     "mPagesPerBlock" : "4",
-    "mTotalPages" : "10240",
-    "mMaxReadRetries": "2",
+    "mTotalPages": "8192",
+    "mMaxReadRetries": "20",
     "mRandomSeed" : "4",
-    "mMaxPageEraseCount": "5",
+    "mMaxPageEraseCount": "100",
     "dataServerId" : "1",
-    "mGCThreshold" : "0.25",
+    "mGCThreshold": "0.80",
     "cacheSize" : "0",
     "mDisturbanceCyclesExponent" : "3",
     "mDisturbanceReadsExponent" : "1",
-    "mDataScrubbingThreshold": "0.5",
-    "mMaxPageReadCount": "50"
+    "mDataScrubbingThreshold": "0.05",
+    "mMaxPageReadCount": "100"
 
   },
   {
     "mPageSize" : "128",
     "mPagesPerBlock" : "4",
-    "mTotalPages" : "10240",
-    "mMaxReadRetries": "2",
+    "mTotalPages": "8192",
+    "mMaxReadRetries": "20",
     "mRandomSeed" : "4",
-    "mMaxPageEraseCount": "5",
+    "mMaxPageEraseCount": "100",
     "dataServerId" : "2",
-
-    "mGCThreshold" : "0.25",
-
+    "mGCThreshold": "0.80",
     "cacheSize" : "0",
     "mDisturbanceCyclesExponent" : "3",
     "mDisturbanceReadsExponent" : "1",
-    "mDataScrubbingThreshold": "0.5",
-    "mMaxPageReadCount": "50"
+    "mDataScrubbingThreshold": "0.05",
+    "mMaxPageReadCount": "100"
 
   },
   {
     "mPageSize" : "128",
     "mPagesPerBlock" : "4",
-    "mTotalPages" : "10240",
-    "mMaxReadRetries": "2",
+    "mTotalPages": "8192",
+    "mMaxReadRetries": "20",
     "mRandomSeed" : "4",
-    "mMaxPageEraseCount": "5",
+    "mMaxPageEraseCount": "100",
     "dataServerId" : "3",
-    "mGCThreshold" : "0.25",
+    "mGCThreshold": "0.80",
     "cacheSize" : "0",
     "mDisturbanceCyclesExponent" : "3",
     "mDisturbanceReadsExponent" : "1",
-    "mDataScrubbingThreshold": "0.5",
-    "mMaxPageReadCount": "50"
+    "mDataScrubbingThreshold": "0.05",
+    "mMaxPageReadCount": "100"
+  },
+  {
+    "mPageSize": "128",
+    "mPagesPerBlock": "4",
+    "mTotalPages": "8192",
+    "mMaxReadRetries": "20",
+    "mRandomSeed": "4",
+    "mMaxPageEraseCount": "100",
+    "dataServerId": "4",
+    "mGCThreshold": "0.80",
+    "cacheSize": "0",
+    "mDisturbanceCyclesExponent": "3",
+    "mDisturbanceReadsExponent": "1",
+    "mDataScrubbingThreshold": "0.05",
+    "mMaxPageReadCount": "100"
+  },
+  {
+    "mPageSize": "128",
+    "mPagesPerBlock": "4",
+    "mTotalPages": "8192",
+    "mMaxReadRetries": "20",
+    "mRandomSeed": "4",
+    "mMaxPageEraseCount": "100",
+    "dataServerId": "5",
+    "mGCThreshold": "0.80",
+    "cacheSize": "0",
+    "mDisturbanceCyclesExponent": "3",
+    "mDisturbanceReadsExponent": "1",
+    "mDataScrubbingThreshold": "0.05",
+    "mMaxPageReadCount": "100"
 
   }
 ]

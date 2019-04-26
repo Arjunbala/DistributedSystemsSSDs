@@ -69,7 +69,8 @@ public class DownpourSGD implements IClientWorkload {
     public void execute() throws GenericException, PageCorruptedException {
         this.write();
         List<ClientRange> clients = assignWorkloadToTheClients();
-        for (long l = 0; l < iterationCount; l++) {
+        for (long l = 0; l != iterationCount; l++) {
+            System.out.println("Iteration Count : " + l);
             Map<Integer, List<Long>> clientVsMiniBatch = getMiniBatches(clients);
             this.readMiniBatches(clientVsMiniBatch);
 

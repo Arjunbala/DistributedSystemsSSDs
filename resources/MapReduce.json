@@ -1,5 +1,5 @@
 {
-  "reducerCount": "5",
-  "dataSize": "512",
+  "reducerCount": "10",
+  "dataSize": "2048",
   "skewness": "10"
 }
