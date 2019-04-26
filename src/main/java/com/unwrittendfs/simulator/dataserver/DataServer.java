@@ -13,9 +13,7 @@ public class DataServer {
 
     public enum PageStatus {
         VALID, INVALID, FREE
-    }
-
-    ;
+    };
 
     // SSD Data Structures
     private Map<Integer, List<Long>> mChunkToPageMapping;
@@ -25,7 +23,6 @@ public class DataServer {
     // Statistics Structures
     private Map<Long, Integer> mEraseMap;
     private Map<Long, Integer> mReadMap;
-    private Map<Long, Integer> mWriteMap;
     private Cache cacheLayer;
 
     // Configuration Structures
@@ -46,10 +43,6 @@ public class DataServer {
         mReadMap = new HashMap<>();
         for (long i = 0; i < config.getTotalNumPages(); i++) {
             mReadMap.put(i, 0);
-        }
-        mWriteMap = new HashMap<>();
-        for (long i = 0; i < config.getTotalNumPages(); i++) {
-            mWriteMap.put(i, 0);
         }
         cacheLayer = new Cache(config.getCacheSize(), config.getPageSize());
         mRandomGenerator = new Random(mConfig.getmRandomSeed());
@@ -175,32 +168,34 @@ public class DataServer {
         if (numPages == 0) {
             return new ArrayList<>();
         }
+        int numBlocks = numPages/mConfig.getmPagesPerBlock();
         // Try to find out numPages which are least written to
         List<Long> allocatedPages = new ArrayList<>();
 
         // Sort in descending order of writes. The reason we are sorting in descending order because we want to fix our
         // heap size. If the maxWrite is greater in the heap is greater than the one during the iteration, we swap the pages.
         Queue<PagePEWrites> queue = new PriorityQueue<>((o1, o2) -> o2.write - o1.write);
-        for (long pgNo = 0; pgNo < mConfig.getTotalNumPages(); pgNo++) {
+        for (long pgNo = 0; pgNo < mConfig.getTotalNumPages(); pgNo=pgNo+mConfig.getPagesPerBlock()) {
             if (mPageList.get(pgNo).equals(PageStatus.FREE)) {
-                if (queue.size() < numPages) {
-                    queue.add(new PagePEWrites(pgNo, mWriteMap.get(pgNo)));
+            	if (queue.size() < numBlocks) {
+            		queue.add(new PagePEWrites(pgNo, mEraseMap.get(pgNo)));
                 } else {
-                    if (queue.peek().write > mWriteMap.get(pgNo)) {
-                        queue.poll();
-                        queue.add(new PagePEWrites(pgNo, mWriteMap.get(pgNo)));
+                	if (queue.peek().write > mEraseMap.get(pgNo)) {
+                		queue.poll();
+                        queue.add(new PagePEWrites(pgNo, mEraseMap.get(pgNo)));
                     }
                 }
             }
         }
-        if (queue.size() != numPages) {
+        if (queue.size() != numBlocks) {
             throw new GenericException("Required space is not available for allocation");
         }
         for (PagePEWrites peWrites : queue) {
-            allocatedPages.add(peWrites.pageNo);
-            increment(mWriteMap, peWrites.pageNo);
-            mPageList.put(peWrites.pageNo, PageStatus.VALID);
-            cacheLayer.add(peWrites.pageNo);
+        	for(long i=0;i<mConfig.getmPagesPerBlock();i++) {
+        		allocatedPages.add(peWrites.pageNo+i);
+                mPageList.put(peWrites.pageNo+i, PageStatus.VALID);
+                cacheLayer.add(peWrites.pageNo+i);
+        	}
         }
         return allocatedPages;
     }
