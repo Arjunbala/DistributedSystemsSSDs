@@ -51,25 +51,32 @@ public class HotNCold implements IClientWorkload {
         writeFiles();
         Random randomSkewedFile = new Random(5);
         Random randomNonSkewedFile = new Random(5);
-
         int skewedCount = 0;
         int nonskewedCount = 0;
-        for (long l = 0; l != iterationCount; l++) {
-            int randomNo = random.nextInt(100) + 1;
-            // Below function takes care of dividing the workload 90:10
-            // Read skewed file
-            if (randomNo % 10 != 0) {
-                System.out.println("skewedCount : " + ++skewedCount);
-                int index = randomSkewedFile.nextInt(skewedFileCount);
-                fileReadAndWrite(String.valueOf(skewedFiles.get(index)));
+        long l = 0;
+        try {
+            for (; l != iterationCount; l++) {
+                int randomNo = random.nextInt(100) + 1;
+                // Below function takes care of dividing the workload 90:10
+                // Read skewed file
+                if (randomNo % 10 != 0) {
+                    ++skewedCount;
+                    int index = randomSkewedFile.nextInt(skewedFileCount);
+                    fileReadAndWrite(String.valueOf(skewedFiles.get(index)));
 
-            } else {
-                // Read non-skewed file.
-                System.out.println("nonskewedCount : " + ++nonskewedCount);
-                int index = randomNonSkewedFile.nextInt(nonSkewedFiles.size());
-                fileReadAndWrite(String.valueOf(nonSkewedFiles.get(index)));
-
+                } else {
+                    // Read non-skewed file.
+                    ++nonskewedCount;
+                    int index = randomNonSkewedFile.nextInt(nonSkewedFiles.size());
+                    fileReadAndWrite(String.valueOf(nonSkewedFiles.get(index)));
+                }
             }
+        } catch (GenericException ex) {
+            throw ex;
+        } finally {
+            System.out.println("Iteration Count :" + l);
+            System.out.println("skewedCount : " + skewedCount);
+            System.out.println("nonSkewedCount : " + nonskewedCount);
         }
 
     }

@@ -32,7 +32,7 @@ public class GoogleFileSystem extends DistributedFileSystem {
 			dataServers.add(mDataServerMap.get(location.getDataServer()));
 		}
 		// Shuffle the data servers for randomness
-		Collections.shuffle(dataServers);
+        Collections.shuffle(dataServers, new Random(5));
 		return dataServers;
 	}
 	

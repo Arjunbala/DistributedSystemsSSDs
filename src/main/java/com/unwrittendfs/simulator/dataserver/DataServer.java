@@ -142,7 +142,7 @@ public class DataServer {
     }
 
     private void triggerGC() {
-        System.out.println("GC Triggered");
+        int freedBlocks = 0;
         //printStats();
         boolean isDirtyBlock = false;
         for (long pgNo = 0; pgNo < mConfig.getTotalNumPages(); pgNo = pgNo + mConfig.getmPagesPerBlock()) {
@@ -155,6 +155,8 @@ public class DataServer {
             //System.out.println("Block validity: " + isDirtyBlock);
 //             If the block has no valid data then clean the block
             if (!isDirtyBlock) {
+                freedBlocks++;
+
                 for (long start = pgNo; start < pgNo + mConfig.getmPagesPerBlock(); start++) {
                     if (mPageList.get(start).equals(PageStatus.INVALID)) {
                         mPageList.put(start, PageStatus.FREE);
@@ -164,6 +166,8 @@ public class DataServer {
                 }
             }
         }
+
+        System.out.println("GC Triggered. Freed count of blocks : " + freedBlocks);
 
     }
 
